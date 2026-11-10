@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProductRequest extends FormRequest
 {
@@ -15,7 +17,7 @@ class UpdateProductRequest extends FormRequest
     {
         return [
             'name' => ['sometimes', 'string', 'max:120'],
-            'category' => ['sometimes', 'string', 'in:'.implode(',', StoreProductRequest::CATEGORIES)],
+            'category' => ['sometimes', 'string', Rule::in(Product::CATEGORIES)],
             'kcal_100g' => ['sometimes', 'numeric', 'min:0', 'max:900'],
             'protein_100g' => ['sometimes', 'numeric', 'min:0', 'max:100'],
             'carbs_100g' => ['sometimes', 'numeric', 'min:0', 'max:100'],

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name', 120)->index();
-            $table->string('category', 40)->default('Other');
+            $table->string('category', 40)->default('Inne');
             $table->decimal('kcal_100g', 6, 2);
             $table->decimal('protein_100g', 6, 2)->default(0);
             $table->decimal('carbs_100g', 6, 2)->default(0);

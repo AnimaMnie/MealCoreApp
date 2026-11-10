@@ -31,7 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Nieistniejący zasób (np. /api/products/999) -> czytelne 404.
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
-                return response()->json(['message' => 'Resource not found.'], 404);
+                return response()->json(['message' => 'Nie znaleziono zasobu.'], 404);
             }
         });
     })->create();

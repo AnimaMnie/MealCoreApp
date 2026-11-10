@@ -13,6 +13,8 @@ class Product extends Model
 {
     use HasFactory;
 
+    public const CATEGORIES = ['Warzywa i owoce', 'Nabiał', 'Pieczywo', 'Białko', 'Inne'];
+
     protected function casts(): array
     {
         return [

@@ -44,7 +44,7 @@ class ProductService
     public function delete(Product $product): void
     {
         if ($product->mealItems()->exists()) {
-            throw new BusinessRuleException('Product is used in logged meals and cannot be deleted.');
+            throw new BusinessRuleException('Nie można usunąć produktu, który jest użyty w zapisanych posiłkach.');
         }
 
         $product->delete();
