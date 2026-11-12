@@ -52,6 +52,7 @@ return [
         'name' => 'nazwa',
         'email' => 'e-mail',
         'password' => 'hasło',
+        'role' => 'rola',
         'category' => 'kategoria',
         'kcal_100g' => 'kalorie (na 100 g)',
         'protein_100g' => 'białko (na 100 g)',
