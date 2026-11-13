@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\GroupController;
+use App\Http\Controllers\Api\MealController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ShoppingItemController;
 use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +26,28 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('products', [ProductController::class, 'store'])->can('create', Product::class);
     Route::match(['put', 'patch'], 'products/{product}', [ProductController::class, 'update'])->can('update', 'product');
     Route::delete('products/{product}', [ProductController::class, 'destroy'])->can('delete', 'product');
+
+    // Dziennik posiłków (każdy widzi i zmienia tylko swoje - MealPolicy).
+    Route::get('meals/summary', [MealController::class, 'summary']);
+    Route::get('meals', [MealController::class, 'index']);
+    Route::post('meals', [MealController::class, 'store']);
+    Route::get('meals/{meal}', [MealController::class, 'show'])->can('view', 'meal');
+    Route::match(['put', 'patch'], 'meals/{meal}', [MealController::class, 'update'])->can('update', 'meal');
+    Route::delete('meals/{meal}', [MealController::class, 'destroy'])->can('delete', 'meal');
+
+    // Grupy (GroupPolicy: widzą członkowie, zarządza właściciel).
+    Route::get('groups', [GroupController::class, 'index']);
+    Route::post('groups', [GroupController::class, 'store']);
+    Route::get('groups/{group}', [GroupController::class, 'show'])->can('view', 'group');
+    Route::delete('groups/{group}', [GroupController::class, 'destroy'])->can('delete', 'group');
+    Route::post('groups/{group}/members', [GroupController::class, 'addMember'])->can('manageMembers', 'group');
+    Route::delete('groups/{group}/members/{user}', [GroupController::class, 'removeMember'])->can('manageMembers', 'group');
+
+    // Lista zakupów grupy - tylko dla członków grupy.
+    Route::get('groups/{group}/shopping-items', [ShoppingItemController::class, 'index'])->can('view', 'group');
+    Route::post('groups/{group}/shopping-items', [ShoppingItemController::class, 'store'])->can('view', 'group');
+    Route::patch('shopping-items/{shoppingItem}', [ShoppingItemController::class, 'update'])->can('update', 'shoppingItem');
+    Route::delete('shopping-items/{shoppingItem}', [ShoppingItemController::class, 'destroy'])->can('delete', 'shoppingItem');
 
     // Panel admina (authorization przez middleware "admin").
     Route::prefix('admin')->middleware('admin')->group(function () {

@@ -67,5 +67,12 @@ return [
         'product_name' => 'nazwa produktu',
         'quantity' => 'ilość',
         'daily_calorie_goal' => 'dzienny cel kalorii',
+        'type' => 'typ grupy',
+        'date' => 'data',
+        'items' => 'pozycje posiłku',
+        'items.*.product_id' => 'produkt',
+        'items.*.grams' => 'gramatura',
+        'is_checked' => 'kupione',
+        'checked' => 'kupione',
     ],
 ];

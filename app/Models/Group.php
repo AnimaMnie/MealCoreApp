@@ -16,6 +16,8 @@ class Group extends Model
     public const ROLE_OWNER = 'owner';
     public const ROLE_MEMBER = 'member';
 
+    public const TYPES = ['family', 'roommates', 'office', 'other'];
+
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'group_members')
