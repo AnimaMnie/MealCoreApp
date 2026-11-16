@@ -1,0 +1,1794 @@
+openapi: 3.0.3
+info:
+  title: 'MealCore API'
+  description: 'REST API aplikacji MealCore: dziennik posiłków z liczeniem kalorii, baza produktów, grupy ze wspólną listą zakupów i panel administratora.'
+  version: 1.0.0
+servers:
+  -
+    url: 'http://localhost:8080'
+tags:
+  -
+    name: Autoryzacja
+    description: "\nRejestracja, logowanie i wylogowanie (tokeny Sanctum)."
+  -
+    name: Produkty
+    description: "\nBaza produktów (wartości na 100 g). Odczyt: każdy zalogowany, zapis: tylko admin.\n\nWarstwa HTTP: przyjmuje request, deleguje do serwisu, zwraca Resource (DTO)."
+  -
+    name: Posiłki
+    description: "\nDziennik posiłków zalogowanego użytkownika z wyliczaniem kalorii i makroskładników."
+  -
+    name: Grupy
+    description: "\nGrupy użytkowników. Widzą je członkowie, zarządza właściciel."
+  -
+    name: 'Lista zakupów'
+    description: "\nWspólna lista zakupów grupy - dostęp tylko dla członków grupy."
+  -
+    name: 'Panel admina'
+    description: "\nZarządzanie użytkownikami - tylko dla roli admin."
+components:
+  securitySchemes:
+    default:
+      type: http
+      scheme: bearer
+      description: 'Token otrzymasz z <code>POST /api/auth/login</code> lub <code>POST /api/auth/register</code>. Wysyłaj go w nagłówku <code>Authorization: Bearer {TOKEN}</code>.'
+security:
+  -
+    default: []
+paths:
+  /api/auth/register:
+    post:
+      summary: 'Rejestracja - zwraca użytkownika i token Bearer.'
+      operationId: rejestracjaZwracaUytkownikaITokenBearer
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Autoryzacja
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Pole value może mieć najwyżej 50 znaków.'
+                  example: b
+                email:
+                  type: string
+                  description: 'Pole value musi być prawidłowym adresem e-mail. Pole value może mieć najwyżej 255 znaków.'
+                  example: zbailey@example.net
+                password:
+                  type: string
+                  description: ''
+                  example: architecto
+              required:
+                - name
+                - email
+                - password
+      security: []
+  /api/auth/login:
+    post:
+      summary: 'Logowanie - zwraca token, który wysyłasz w nagłówku Authorization: Bearer {token}.'
+      operationId: logowanieZwracaTokenKtryWysyaszWNagwkuAuthorizationBearertoken
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Autoryzacja
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'Pole value musi być prawidłowym adresem e-mail.'
+                  example: gbailey@example.net
+                password:
+                  type: string
+                  description: ''
+                  example: '|]|{+-'
+              required:
+                - email
+                - password
+      security: []
+  /api/auth/logout:
+    post:
+      summary: ''
+      operationId: postApiAuthLogout
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Autoryzacja
+  /api/auth/me:
+    get:
+      summary: 'Dane zalogowanego użytkownika.'
+      operationId: daneZalogowanegoUytkownika
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    id: 2
+                    name: alex
+                    email: alex@mealcore.com
+                    role: user
+                    daily_calorie_goal: 2250
+                    created_at: '2026-11-20T20:08:54+00:00'
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 2
+                      name:
+                        type: string
+                        example: alex
+                      email:
+                        type: string
+                        example: alex@mealcore.com
+                      role:
+                        type: string
+                        example: user
+                      daily_calorie_goal:
+                        type: integer
+                        example: 2250
+                      created_at:
+                        type: string
+                        example: '2026-11-20T20:08:54+00:00'
+      tags:
+        - Autoryzacja
+  /api/products:
+    get:
+      summary: 'Lista produktów (paginacja + wyszukiwanie).'
+      operationId: listaProduktwpaginacja+Wyszukiwanie
+      description: ''
+      parameters:
+        -
+          in: query
+          name: q
+          description: 'Szukaj po nazwie.'
+          example: chicken
+          required: false
+          schema:
+            type: string
+            description: 'Szukaj po nazwie.'
+            example: chicken
+        -
+          in: query
+          name: category
+          description: 'Filtr kategorii.'
+          example: Protein
+          required: false
+          schema:
+            type: string
+            description: 'Filtr kategorii.'
+            example: Protein
+        -
+          in: query
+          name: per_page
+          description: 'Liczba wyników na stronę (1-50).'
+          example: 10
+          required: false
+          schema:
+            type: integer
+            description: 'Liczba wyników na stronę (1-50).'
+            example: 10
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data: []
+                  links:
+                    first: 'http://localhost:8080/api/products?q=chicken&category=Protein&per_page=10&page=1'
+                    last: 'http://localhost:8080/api/products?q=chicken&category=Protein&per_page=10&page=1'
+                    prev: null
+                    next: null
+                  meta:
+                    current_page: 1
+                    from: null
+                    last_page: 1
+                    links:
+                      -
+                        url: null
+                        label: '&laquo; Poprzednia'
+                        page: null
+                        active: false
+                      -
+                        url: 'http://localhost:8080/api/products?q=chicken&category=Protein&per_page=10&page=1'
+                        label: '1'
+                        page: 1
+                        active: true
+                      -
+                        url: null
+                        label: 'Następna &raquo;'
+                        page: null
+                        active: false
+                    path: 'http://localhost:8080/api/products'
+                    per_page: 7
+                    to: null
+                    total: 0
+                properties:
+                  data:
+                    type: array
+                    example: []
+                  links:
+                    type: object
+                    properties:
+                      first:
+                        type: string
+                        example: 'http://localhost:8080/api/products?q=chicken&category=Protein&per_page=10&page=1'
+                      last:
+                        type: string
+                        example: 'http://localhost:8080/api/products?q=chicken&category=Protein&per_page=10&page=1'
+                      prev:
+                        type: string
+                        example: null
+                        nullable: true
+                      next:
+                        type: string
+                        example: null
+                        nullable: true
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        example: 1
+                      from:
+                        type: string
+                        example: null
+                        nullable: true
+                      last_page:
+                        type: integer
+                        example: 1
+                      links:
+                        type: array
+                        example:
+                          -
+                            url: null
+                            label: '&laquo; Poprzednia'
+                            page: null
+                            active: false
+                          -
+                            url: 'http://localhost:8080/api/products?q=chicken&category=Protein&per_page=10&page=1'
+                            label: '1'
+                            page: 1
+                            active: true
+                          -
+                            url: null
+                            label: 'Następna &raquo;'
+                            page: null
+                            active: false
+                        items:
+                          type: object
+                          properties:
+                            url:
+                              type: string
+                              example: null
+                              nullable: true
+                            label:
+                              type: string
+                              example: '&laquo; Poprzednia'
+                            page:
+                              type: string
+                              example: null
+                              nullable: true
+                            active:
+                              type: boolean
+                              example: false
+                      path:
+                        type: string
+                        example: 'http://localhost:8080/api/products'
+                      per_page:
+                        type: integer
+                        example: 7
+                      to:
+                        type: string
+                        example: null
+                        nullable: true
+                      total:
+                        type: integer
+                        example: 0
+      tags:
+        - Produkty
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                q:
+                  type: string
+                  description: 'Pole value może mieć najwyżej 100 znaków.'
+                  example: b
+                  nullable: true
+                category:
+                  type: string
+                  description: 'Pole value może mieć najwyżej 40 znaków.'
+                  example: 'n'
+                  nullable: true
+                per_page:
+                  type: integer
+                  description: 'Pole value musi wynosić co najmniej 1. Pole value nie może być większe niż 50.'
+                  example: 7
+                  nullable: true
+    post:
+      summary: ''
+      operationId: postApiProducts
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Produkty
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Pole value może mieć najwyżej 120 znaków.'
+                  example: b
+                category:
+                  type: string
+                  description: ''
+                  example: 'Warzywa i owoce'
+                  enum:
+                    - 'Warzywa i owoce'
+                    - Nabiał
+                    - Pieczywo
+                    - Białko
+                    - Inne
+                kcal_100g:
+                  type: number
+                  description: 'Pole value musi wynosić co najmniej 0. Pole value nie może być większe niż 900.'
+                  example: 22
+                protein_100g:
+                  type: number
+                  description: 'Pole value musi wynosić co najmniej 0. Pole value nie może być większe niż 100.'
+                  example: 7
+                carbs_100g:
+                  type: number
+                  description: 'Pole value musi wynosić co najmniej 0. Pole value nie może być większe niż 100.'
+                  example: 16
+                fat_100g:
+                  type: number
+                  description: 'Pole value musi wynosić co najmniej 0. Pole value nie może być większe niż 100.'
+                  example: 17
+              required:
+                - name
+                - kcal_100g
+  '/api/products/{product_id}':
+    get:
+      summary: ''
+      operationId: getApiProductsProduct_id
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    id: 1
+                    name: 'Tost z awokado na zakwasie'
+                    category: Pieczywo
+                    per_100g:
+                      kcal: 124
+                      protein: 5.6
+                      carbs: 12.8
+                      fat: 6.4
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: 'Tost z awokado na zakwasie'
+                      category:
+                        type: string
+                        example: Pieczywo
+                      per_100g:
+                        type: object
+                        properties:
+                          kcal:
+                            type: integer
+                            example: 124
+                          protein:
+                            type: number
+                            example: 5.6
+                          carbs:
+                            type: number
+                            example: 12.8
+                          fat:
+                            type: number
+                            example: 6.4
+      tags:
+        - Produkty
+    put:
+      summary: ''
+      operationId: putApiProductsProduct_id
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Produkty
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Pole value może mieć najwyżej 120 znaków.'
+                  example: b
+                category:
+                  type: string
+                  description: ''
+                  example: Pieczywo
+                  enum:
+                    - 'Warzywa i owoce'
+                    - Nabiał
+                    - Pieczywo
+                    - Białko
+                    - Inne
+                kcal_100g:
+                  type: number
+                  description: 'Pole value musi wynosić co najmniej 0. Pole value nie może być większe niż 900.'
+                  example: 22
+                protein_100g:
+                  type: number
+                  description: 'Pole value musi wynosić co najmniej 0. Pole value nie może być większe niż 100.'
+                  example: 7
+                carbs_100g:
+                  type: number
+                  description: 'Pole value musi wynosić co najmniej 0. Pole value nie może być większe niż 100.'
+                  example: 16
+                fat_100g:
+                  type: number
+                  description: 'Pole value musi wynosić co najmniej 0. Pole value nie może być większe niż 100.'
+                  example: 17
+    delete:
+      summary: ''
+      operationId: deleteApiProductsProduct_id
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Produkty
+    parameters:
+      -
+        in: path
+        name: product_id
+        description: 'The ID of the product.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/meals/summary:
+    get:
+      summary: 'Dzienne podsumowanie: suma kcal i makro oraz ile zostało do celu.'
+      operationId: dziennePodsumowanieSumaKcalIMakroOrazIleZostaoDoCelu
+      description: ''
+      parameters:
+        -
+          in: query
+          name: date
+          description: 'Dzień w formacie Y-m-d (domyślnie dziś).'
+          example: '2026-11-20'
+          required: false
+          schema:
+            type: string
+            description: 'Dzień w formacie Y-m-d (domyślnie dziś).'
+            example: '2026-11-20'
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    date: '2026-11-20'
+                    meals_count: 3
+                    totals:
+                      kcal: 1179.7
+                      protein: 60.1
+                      carbs: 102.7
+                      fat: 54.6
+                    calorie_goal: 2250
+                    remaining_kcal: 1070.3
+                    goal_exceeded: false
+                    goal_progress_percent: 52
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      date:
+                        type: string
+                        example: '2026-11-20'
+                      meals_count:
+                        type: integer
+                        example: 3
+                      totals:
+                        type: object
+                        properties:
+                          kcal:
+                            type: number
+                            example: 1179.7
+                          protein:
+                            type: number
+                            example: 60.1
+                          carbs:
+                            type: number
+                            example: 102.7
+                          fat:
+                            type: number
+                            example: 54.6
+                      calorie_goal:
+                        type: integer
+                        example: 2250
+                      remaining_kcal:
+                        type: number
+                        example: 1070.3
+                      goal_exceeded:
+                        type: boolean
+                        example: false
+                      goal_progress_percent:
+                        type: integer
+                        example: 52
+      tags:
+        - Posiłki
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  description: 'Must be a valid date in the format <code>Y-m-d</code>.'
+                  example: '2026-11-20'
+                  nullable: true
+  /api/meals:
+    get:
+      summary: 'Posiłki zalogowanego użytkownika (paginacja + filtr daty i rodzaju).'
+      operationId: posikiZalogowanegoUytkownikapaginacja+FiltrDatyIRodzaju
+      description: ''
+      parameters:
+        -
+          in: query
+          name: date
+          description: 'Dzień w formacie Y-m-d.'
+          example: '2026-11-20'
+          required: false
+          schema:
+            type: string
+            description: 'Dzień w formacie Y-m-d.'
+            example: '2026-11-20'
+        -
+          in: query
+          name: meal_type
+          description: 'Rodzaj posiłku.'
+          example: lunch
+          required: false
+          schema:
+            type: string
+            description: 'Rodzaj posiłku.'
+            example: lunch
+        -
+          in: query
+          name: per_page
+          description: 'Liczba wyników na stronę (1-50).'
+          example: 10
+          required: false
+          schema:
+            type: integer
+            description: 'Liczba wyników na stronę (1-50).'
+            example: 10
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: 2
+                      meal_date: '2026-11-20'
+                      meal_type: lunch
+                      name: Obiad
+                      items:
+                        -
+                          id: 3
+                          product_id: 3
+                          product_name: 'Miska z łososiem'
+                          grams: 420
+                          nutrition:
+                            kcal: 680.4
+                            protein: 34
+                            carbs: 52.1
+                            fat: 33.2
+                      totals:
+                        kcal: 680.4
+                        protein: 34
+                        carbs: 52.1
+                        fat: 33.2
+                  links:
+                    first: 'http://localhost:8080/api/meals?date=2026-11-20&meal_type=lunch&per_page=10&page=1'
+                    last: 'http://localhost:8080/api/meals?date=2026-11-20&meal_type=lunch&per_page=10&page=1'
+                    prev: null
+                    next: null
+                  meta:
+                    current_page: 1
+                    from: 1
+                    last_page: 1
+                    links:
+                      -
+                        url: null
+                        label: '&laquo; Poprzednia'
+                        page: null
+                        active: false
+                      -
+                        url: 'http://localhost:8080/api/meals?date=2026-11-20&meal_type=lunch&per_page=10&page=1'
+                        label: '1'
+                        page: 1
+                        active: true
+                      -
+                        url: null
+                        label: 'Następna &raquo;'
+                        page: null
+                        active: false
+                    path: 'http://localhost:8080/api/meals'
+                    per_page: 1
+                    to: 1
+                    total: 1
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 2
+                        meal_date: '2026-11-20'
+                        meal_type: lunch
+                        name: Obiad
+                        items:
+                          -
+                            id: 3
+                            product_id: 3
+                            product_name: 'Miska z łososiem'
+                            grams: 420
+                            nutrition:
+                              kcal: 680.4
+                              protein: 34
+                              carbs: 52.1
+                              fat: 33.2
+                        totals:
+                          kcal: 680.4
+                          protein: 34
+                          carbs: 52.1
+                          fat: 33.2
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 2
+                        meal_date:
+                          type: string
+                          example: '2026-11-20'
+                        meal_type:
+                          type: string
+                          example: lunch
+                        name:
+                          type: string
+                          example: Obiad
+                        items:
+                          type: array
+                          example:
+                            -
+                              id: 3
+                              product_id: 3
+                              product_name: 'Miska z łososiem'
+                              grams: 420
+                              nutrition:
+                                kcal: 680.4
+                                protein: 34
+                                carbs: 52.1
+                                fat: 33.2
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 3
+                              product_id:
+                                type: integer
+                                example: 3
+                              product_name:
+                                type: string
+                                example: 'Miska z łososiem'
+                              grams:
+                                type: integer
+                                example: 420
+                              nutrition:
+                                type: object
+                                properties:
+                                  kcal:
+                                    type: number
+                                    example: 680.4
+                                  protein:
+                                    type: integer
+                                    example: 34
+                                  carbs:
+                                    type: number
+                                    example: 52.1
+                                  fat:
+                                    type: number
+                                    example: 33.2
+                        totals:
+                          type: object
+                          properties:
+                            kcal:
+                              type: number
+                              example: 680.4
+                            protein:
+                              type: integer
+                              example: 34
+                            carbs:
+                              type: number
+                              example: 52.1
+                            fat:
+                              type: number
+                              example: 33.2
+                  links:
+                    type: object
+                    properties:
+                      first:
+                        type: string
+                        example: 'http://localhost:8080/api/meals?date=2026-11-20&meal_type=lunch&per_page=10&page=1'
+                      last:
+                        type: string
+                        example: 'http://localhost:8080/api/meals?date=2026-11-20&meal_type=lunch&per_page=10&page=1'
+                      prev:
+                        type: string
+                        example: null
+                        nullable: true
+                      next:
+                        type: string
+                        example: null
+                        nullable: true
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        example: 1
+                      from:
+                        type: integer
+                        example: 1
+                      last_page:
+                        type: integer
+                        example: 1
+                      links:
+                        type: array
+                        example:
+                          -
+                            url: null
+                            label: '&laquo; Poprzednia'
+                            page: null
+                            active: false
+                          -
+                            url: 'http://localhost:8080/api/meals?date=2026-11-20&meal_type=lunch&per_page=10&page=1'
+                            label: '1'
+                            page: 1
+                            active: true
+                          -
+                            url: null
+                            label: 'Następna &raquo;'
+                            page: null
+                            active: false
+                        items:
+                          type: object
+                          properties:
+                            url:
+                              type: string
+                              example: null
+                              nullable: true
+                            label:
+                              type: string
+                              example: '&laquo; Poprzednia'
+                            page:
+                              type: string
+                              example: null
+                              nullable: true
+                            active:
+                              type: boolean
+                              example: false
+                      path:
+                        type: string
+                        example: 'http://localhost:8080/api/meals'
+                      per_page:
+                        type: integer
+                        example: 1
+                      to:
+                        type: integer
+                        example: 1
+                      total:
+                        type: integer
+                        example: 1
+      tags:
+        - Posiłki
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  description: 'Must be a valid date in the format <code>Y-m-d</code>.'
+                  example: '2026-11-20'
+                  nullable: true
+                meal_type:
+                  type: string
+                  description: ''
+                  example: null
+                  nullable: true
+                per_page:
+                  type: integer
+                  description: 'Pole value musi wynosić co najmniej 1. Pole value nie może być większe niż 50.'
+                  example: 1
+                  nullable: true
+    post:
+      summary: ''
+      operationId: postApiMeals
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Posiłki
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meal_date:
+                  type: string
+                  description: 'Must be a valid date in the format <code>Y-m-d</code>.'
+                  example: '2026-11-20'
+                meal_type:
+                  type: string
+                  description: ''
+                  example: dinner
+                  enum:
+                    - breakfast
+                    - second_breakfast
+                    - lunch
+                    - dinner
+                    - snack
+                    - supper
+                name:
+                  type: string
+                  description: 'Pole value może mieć najwyżej 120 znaków.'
+                  example: b
+                  nullable: true
+                items:
+                  type: array
+                  description: 'Pole value musi mieć co najmniej 1 elementów. Pole value może mieć najwyżej 20 elementów.'
+                  example:
+                    - []
+                  items:
+                    type: object
+                    properties:
+                      product_id:
+                        type: integer
+                        description: 'Must match an existing stored value.'
+                        example: 16
+                      grams:
+                        type: number
+                        description: 'Pole value musi wynosić co najmniej 1. Pole value nie może być większe niż 5000.'
+                        example: 22
+                    required:
+                      - product_id
+                      - grams
+              required:
+                - meal_date
+                - meal_type
+                - items
+  '/api/meals/{meal_id}':
+    get:
+      summary: ''
+      operationId: getApiMealsMeal_id
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    id: 1
+                    meal_date: '2026-11-20'
+                    meal_type: breakfast
+                    name: Śniadanie
+                    items:
+                      -
+                        id: 1
+                        product_id: 1
+                        product_name: 'Tost z awokado na zakwasie'
+                        grams: 250
+                        nutrition:
+                          kcal: 310
+                          protein: 14
+                          carbs: 32
+                          fat: 16
+                      -
+                        id: 2
+                        product_id: 2
+                        product_name: 'Podwójne espresso'
+                        grams: 60
+                        nutrition:
+                          kcal: 4.8
+                          protein: 0.1
+                          carbs: 0.6
+                          fat: 0.1
+                    totals:
+                      kcal: 314.8
+                      protein: 14.1
+                      carbs: 32.6
+                      fat: 16.1
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      meal_date:
+                        type: string
+                        example: '2026-11-20'
+                      meal_type:
+                        type: string
+                        example: breakfast
+                      name:
+                        type: string
+                        example: Śniadanie
+                      items:
+                        type: array
+                        example:
+                          -
+                            id: 1
+                            product_id: 1
+                            product_name: 'Tost z awokado na zakwasie'
+                            grams: 250
+                            nutrition:
+                              kcal: 310
+                              protein: 14
+                              carbs: 32
+                              fat: 16
+                          -
+                            id: 2
+                            product_id: 2
+                            product_name: 'Podwójne espresso'
+                            grams: 60
+                            nutrition:
+                              kcal: 4.8
+                              protein: 0.1
+                              carbs: 0.6
+                              fat: 0.1
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            product_id:
+                              type: integer
+                              example: 1
+                            product_name:
+                              type: string
+                              example: 'Tost z awokado na zakwasie'
+                            grams:
+                              type: integer
+                              example: 250
+                            nutrition:
+                              type: object
+                              properties:
+                                kcal:
+                                  type: integer
+                                  example: 310
+                                protein:
+                                  type: integer
+                                  example: 14
+                                carbs:
+                                  type: integer
+                                  example: 32
+                                fat:
+                                  type: integer
+                                  example: 16
+                      totals:
+                        type: object
+                        properties:
+                          kcal:
+                            type: number
+                            example: 314.8
+                          protein:
+                            type: number
+                            example: 14.1
+                          carbs:
+                            type: number
+                            example: 32.6
+                          fat:
+                            type: number
+                            example: 16.1
+      tags:
+        - Posiłki
+    put:
+      summary: ''
+      operationId: putApiMealsMeal_id
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Posiłki
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meal_date:
+                  type: string
+                  description: 'Must be a valid date in the format <code>Y-m-d</code>.'
+                  example: '2026-11-20'
+                meal_type:
+                  type: string
+                  description: ''
+                  example: breakfast
+                  enum:
+                    - breakfast
+                    - second_breakfast
+                    - lunch
+                    - dinner
+                    - snack
+                    - supper
+                name:
+                  type: string
+                  description: 'Pole value może mieć najwyżej 120 znaków.'
+                  example: b
+                  nullable: true
+                items:
+                  type: array
+                  description: 'Pole value musi mieć co najmniej 1 elementów. Pole value może mieć najwyżej 20 elementów.'
+                  example: null
+                  items:
+                    type: object
+                    properties:
+                      product_id:
+                        type: integer
+                        description: 'This field is required when <code>items</code> is present. Must match an existing stored value.'
+                        example: 16
+                      grams:
+                        type: number
+                        description: 'This field is required when <code>items</code> is present. Pole value musi wynosić co najmniej 1. Pole value nie może być większe niż 5000.'
+                        example: 22
+    delete:
+      summary: ''
+      operationId: deleteApiMealsMeal_id
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Posiłki
+    parameters:
+      -
+        in: path
+        name: meal_id
+        description: 'The ID of the meal.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/groups:
+    get:
+      summary: 'Grupy, do których należy zalogowany użytkownik.'
+      operationId: grupyDoKtrychNaleyZalogowanyUytkownik
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: 1
+                      name: 'Rodzina Kowalskich'
+                      type: family
+                      my_role: member
+                      members_count: 3
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 1
+                        name: 'Rodzina Kowalskich'
+                        type: family
+                        my_role: member
+                        members_count: 3
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        name:
+                          type: string
+                          example: 'Rodzina Kowalskich'
+                        type:
+                          type: string
+                          example: family
+                        my_role:
+                          type: string
+                          example: member
+                        members_count:
+                          type: integer
+                          example: 3
+      tags:
+        - Grupy
+    post:
+      summary: 'Nowa grupa - twórca zostaje właścicielem.'
+      operationId: nowaGrupaTwrcaZostajeWacicielem
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Grupy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Pole value musi mieć co najmniej 3 znaków. Pole value może mieć najwyżej 100 znaków.'
+                  example: b
+                type:
+                  type: string
+                  description: ''
+                  example: other
+                  enum:
+                    - family
+                    - roommates
+                    - office
+                    - other
+              required:
+                - name
+  '/api/groups/{group_id}':
+    get:
+      summary: ''
+      operationId: getApiGroupsGroup_id
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    id: 1
+                    name: 'Rodzina Kowalskich'
+                    type: family
+                    members:
+                      -
+                        id: 1
+                        name: admin
+                        email: admin@mealcore.com
+                        member_role: owner
+                      -
+                        id: 2
+                        name: alex
+                        email: alex@mealcore.com
+                        member_role: member
+                      -
+                        id: 3
+                        name: sarah
+                        email: sarah@mealcore.com
+                        member_role: member
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: 'Rodzina Kowalskich'
+                      type:
+                        type: string
+                        example: family
+                      members:
+                        type: array
+                        example:
+                          -
+                            id: 1
+                            name: admin
+                            email: admin@mealcore.com
+                            member_role: owner
+                          -
+                            id: 2
+                            name: alex
+                            email: alex@mealcore.com
+                            member_role: member
+                          -
+                            id: 3
+                            name: sarah
+                            email: sarah@mealcore.com
+                            member_role: member
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            name:
+                              type: string
+                              example: admin
+                            email:
+                              type: string
+                              example: admin@mealcore.com
+                            member_role:
+                              type: string
+                              example: owner
+      tags:
+        - Grupy
+    delete:
+      summary: ''
+      operationId: deleteApiGroupsGroup_id
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Grupy
+    parameters:
+      -
+        in: path
+        name: group_id
+        description: 'The ID of the group.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/groups/{group_id}/members':
+    post:
+      summary: 'Dodanie członka po adresie e-mail (tylko właściciel).'
+      operationId: dodanieCzonkaPoAdresieEMailtylkoWaciciel
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Grupy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'Pole value musi być prawidłowym adresem e-mail. Must match an existing stored value.'
+                  example: gbailey@example.net
+              required:
+                - email
+    parameters:
+      -
+        in: path
+        name: group_id
+        description: 'The ID of the group.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/groups/{group_id}/members/{user_id}':
+    delete:
+      summary: 'Usunięcie członka (tylko właściciel).'
+      operationId: usunicieCzonkatylkoWaciciel
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Grupy
+    parameters:
+      -
+        in: path
+        name: group_id
+        description: 'The ID of the group.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+      -
+        in: path
+        name: user_id
+        description: 'The ID of the user.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/groups/{group_id}/shopping-items':
+    get:
+      summary: 'Lista zakupów grupy (tylko członkowie).'
+      operationId: listaZakupwGrupytylkoCzonkowie
+      description: ''
+      parameters:
+        -
+          in: query
+          name: checked
+          description: 'Filtr: 1 = kupione, 0 = do kupienia.'
+          example: false
+          required: false
+          schema:
+            type: boolean
+            description: 'Filtr: 1 = kupione, 0 = do kupienia.'
+            example: false
+        -
+          in: query
+          name: per_page
+          description: 'Liczba wyników na stronę (1-50).'
+          example: 20
+          required: false
+          schema:
+            type: integer
+            description: 'Liczba wyników na stronę (1-50).'
+            example: 20
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: 5
+                      group_id: 1
+                      product_name: 'Pierś z kurczaka'
+                      category: Białko
+                      quantity: '500 g'
+                      is_checked: true
+                      bought_at: '2026-11-20T20:08:55+00:00'
+                      added_by: alex
+                  links:
+                    first: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=1'
+                    last: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=2'
+                    prev: null
+                    next: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=2'
+                  meta:
+                    current_page: 1
+                    from: 1
+                    last_page: 2
+                    links:
+                      -
+                        url: null
+                        label: '&laquo; Poprzednia'
+                        page: null
+                        active: false
+                      -
+                        url: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=1'
+                        label: '1'
+                        page: 1
+                        active: true
+                      -
+                        url: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=2'
+                        label: '2'
+                        page: 2
+                        active: false
+                      -
+                        url: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=2'
+                        label: 'Następna &raquo;'
+                        page: 2
+                        active: false
+                    path: 'http://localhost:8080/api/groups/1/shopping-items'
+                    per_page: 1
+                    to: 1
+                    total: 2
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 5
+                        group_id: 1
+                        product_name: 'Pierś z kurczaka'
+                        category: Białko
+                        quantity: '500 g'
+                        is_checked: true
+                        bought_at: '2026-11-20T20:08:55+00:00'
+                        added_by: alex
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 5
+                        group_id:
+                          type: integer
+                          example: 1
+                        product_name:
+                          type: string
+                          example: 'Pierś z kurczaka'
+                        category:
+                          type: string
+                          example: Białko
+                        quantity:
+                          type: string
+                          example: '500 g'
+                        is_checked:
+                          type: boolean
+                          example: true
+                        bought_at:
+                          type: string
+                          example: '2026-11-20T20:08:55+00:00'
+                        added_by:
+                          type: string
+                          example: alex
+                  links:
+                    type: object
+                    properties:
+                      first:
+                        type: string
+                        example: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=1'
+                      last:
+                        type: string
+                        example: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=2'
+                      prev:
+                        type: string
+                        example: null
+                        nullable: true
+                      next:
+                        type: string
+                        example: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=2'
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        example: 1
+                      from:
+                        type: integer
+                        example: 1
+                      last_page:
+                        type: integer
+                        example: 2
+                      links:
+                        type: array
+                        example:
+                          -
+                            url: null
+                            label: '&laquo; Poprzednia'
+                            page: null
+                            active: false
+                          -
+                            url: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=1'
+                            label: '1'
+                            page: 1
+                            active: true
+                          -
+                            url: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=2'
+                            label: '2'
+                            page: 2
+                            active: false
+                          -
+                            url: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=2'
+                            label: 'Następna &raquo;'
+                            page: 2
+                            active: false
+                        items:
+                          type: object
+                          properties:
+                            url:
+                              type: string
+                              example: null
+                              nullable: true
+                            label:
+                              type: string
+                              example: '&laquo; Poprzednia'
+                            page:
+                              type: string
+                              example: null
+                              nullable: true
+                            active:
+                              type: boolean
+                              example: false
+                      path:
+                        type: string
+                        example: 'http://localhost:8080/api/groups/1/shopping-items'
+                      per_page:
+                        type: integer
+                        example: 1
+                      to:
+                        type: integer
+                        example: 1
+                      total:
+                        type: integer
+                        example: 2
+      tags:
+        - 'Lista zakupów'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                checked:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+                per_page:
+                  type: integer
+                  description: 'Pole value musi wynosić co najmniej 1. Pole value nie może być większe niż 50.'
+                  example: 1
+                  nullable: true
+    post:
+      summary: ''
+      operationId: postApiGroupsGroup_idShoppingItems
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Lista zakupów'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_name:
+                  type: string
+                  description: 'Pole value może mieć najwyżej 120 znaków.'
+                  example: b
+                category:
+                  type: string
+                  description: ''
+                  example: Inne
+                  enum:
+                    - 'Warzywa i owoce'
+                    - Nabiał
+                    - Pieczywo
+                    - Białko
+                    - Inne
+                quantity:
+                  type: string
+                  description: 'Pole value może mieć najwyżej 40 znaków.'
+                  example: 'n'
+              required:
+                - product_name
+    parameters:
+      -
+        in: path
+        name: group_id
+        description: 'The ID of the group.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/shopping-items/{shoppingItem_id}':
+    patch:
+      summary: 'Edycja lub odhaczenie produktu jako kupionego.'
+      operationId: edycjaLubOdhaczenieProduktuJakoKupionego
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Lista zakupów'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_name:
+                  type: string
+                  description: 'Pole value może mieć najwyżej 120 znaków.'
+                  example: b
+                category:
+                  type: string
+                  description: ''
+                  example: Białko
+                  enum:
+                    - 'Warzywa i owoce'
+                    - Nabiał
+                    - Pieczywo
+                    - Białko
+                    - Inne
+                quantity:
+                  type: string
+                  description: 'Pole value może mieć najwyżej 40 znaków.'
+                  example: 'n'
+                is_checked:
+                  type: boolean
+                  description: ''
+                  example: false
+    delete:
+      summary: ''
+      operationId: deleteApiShoppingItemsShoppingItem_id
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Lista zakupów'
+    parameters:
+      -
+        in: path
+        name: shoppingItem_id
+        description: 'The ID of the shoppingItem.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/admin/users:
+    get:
+      summary: 'Lista użytkowników (paginacja + wyszukiwanie po nazwie / e-mailu).'
+      operationId: listaUytkownikwpaginacja+WyszukiwaniePoNazwieEMailu
+      description: ''
+      parameters:
+        -
+          in: query
+          name: q
+          description: 'Szukaj po nazwie lub e-mailu.'
+          example: alex
+          required: false
+          schema:
+            type: string
+            description: 'Szukaj po nazwie lub e-mailu.'
+            example: alex
+        -
+          in: query
+          name: per_page
+          description: 'Liczba wyników na stronę (1-50).'
+          example: 15
+          required: false
+          schema:
+            type: integer
+            description: 'Liczba wyników na stronę (1-50).'
+            example: 15
+      responses:
+        403:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Ta operacja wymaga uprawnień administratora.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Ta operacja wymaga uprawnień administratora.'
+      tags:
+        - 'Panel admina'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                q:
+                  type: string
+                  description: 'Pole value może mieć najwyżej 100 znaków.'
+                  example: b
+                  nullable: true
+                per_page:
+                  type: integer
+                  description: 'Pole value musi wynosić co najmniej 1. Pole value nie może być większe niż 50.'
+                  example: 22
+                  nullable: true
+  '/api/admin/users/{user_id}/role':
+    patch:
+      summary: 'Zmiana roli użytkownika (user / admin).'
+      operationId: zmianaRoliUytkownikauserAdmin
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Panel admina'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  description: ''
+                  example: admin
+                  enum:
+                    - user
+                    - admin
+              required:
+                - role
+    parameters:
+      -
+        in: path
+        name: user_id
+        description: 'The ID of the user.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/admin/users/{user_id}':
+    delete:
+      summary: ''
+      operationId: deleteApiAdminUsersUser_id
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'Panel admina'
+    parameters:
+      -
+        in: path
+        name: user_id
+        description: 'The ID of the user.'
+        example: 1
+        required: true
+        schema:
+          type: integer

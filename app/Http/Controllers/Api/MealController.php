@@ -14,6 +14,11 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 
+/**
+ * @group Posiłki
+ *
+ * Dziennik posiłków zalogowanego użytkownika z wyliczaniem kalorii i makroskładników.
+ */
 class MealController extends Controller
 {
     public function __construct(private readonly MealService $meals)

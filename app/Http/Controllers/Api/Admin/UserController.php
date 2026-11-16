@@ -12,7 +12,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 /**
- * Panel admina - wszystkie trasy chronione middleware "admin".
+ * @group Panel admina
+ *
+ * Zarządzanie użytkownikami - tylko dla roli admin.
  */
 class UserController extends Controller
 {

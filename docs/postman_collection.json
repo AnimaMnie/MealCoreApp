@@ -1,0 +1,1223 @@
+{
+    "variable": [
+        {
+            "id": "baseUrl",
+            "key": "baseUrl",
+            "type": "string",
+            "name": "string",
+            "value": "http:\/\/localhost:8080"
+        }
+    ],
+    "info": {
+        "name": "MealCore API",
+        "_postman_id": "4aa43f19-4dad-4cac-a64b-576d71b5c616",
+        "description": "REST API aplikacji MealCore: dziennik posi\u0142k\u00f3w z liczeniem kalorii, baza produkt\u00f3w, grupy ze wsp\u00f3ln\u0105 list\u0105 zakup\u00f3w i panel administratora.",
+        "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
+    },
+    "item": [
+        {
+            "name": "Autoryzacja",
+            "description": "\nRejestracja, logowanie i wylogowanie (tokeny Sanctum).",
+            "item": [
+                {
+                    "name": "Rejestracja - zwraca u\u017cytkownika i token Bearer.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/auth\/register",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/auth\/register"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"password\":\"architecto\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Logowanie - zwraca token, kt\u00f3ry wysy\u0142asz w nag\u0142\u00f3wku Authorization: Bearer {token}.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/auth\/login",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/auth\/login"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"email\":\"gbailey@example.net\",\"password\":\"|]|{+-\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "POST api\/auth\/logout",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/auth\/logout",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/auth\/logout"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Dane zalogowanego u\u017cytkownika.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/auth\/me",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/auth\/me"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 200,
+                            "body": "{\"data\":{\"id\":2,\"name\":\"alex\",\"email\":\"alex@mealcore.com\",\"role\":\"user\",\"daily_calorie_goal\":2250,\"created_at\":\"2026-11-20T20:08:54+00:00\"}}",
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Produkty",
+            "description": "\nBaza produkt\u00f3w (warto\u015bci na 100 g). Odczyt: ka\u017cdy zalogowany, zapis: tylko admin.\n\nWarstwa HTTP: przyjmuje request, deleguje do serwisu, zwraca Resource (DTO).",
+            "item": [
+                {
+                    "name": "Lista produkt\u00f3w (paginacja + wyszukiwanie).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/products",
+                            "query": [
+                                {
+                                    "key": "q",
+                                    "value": "chicken",
+                                    "description": "Szukaj po nazwie.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "category",
+                                    "value": "Protein",
+                                    "description": "Filtr kategorii.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "10",
+                                    "description": "Liczba wynik\u00f3w na stron\u0119 (1-50).",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/products?q=chicken&category=Protein&per_page=10"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"q\":\"b\",\"category\":\"n\",\"per_page\":7}"
+                        },
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 200,
+                            "body": "{\"data\":[],\"links\":{\"first\":\"http:\\\/\\\/localhost:8080\\\/api\\\/products?q=chicken&category=Protein&per_page=10&page=1\",\"last\":\"http:\\\/\\\/localhost:8080\\\/api\\\/products?q=chicken&category=Protein&per_page=10&page=1\",\"prev\":null,\"next\":null},\"meta\":{\"current_page\":1,\"from\":null,\"last_page\":1,\"links\":[{\"url\":null,\"label\":\"&laquo; Poprzednia\",\"page\":null,\"active\":false},{\"url\":\"http:\\\/\\\/localhost:8080\\\/api\\\/products?q=chicken&category=Protein&per_page=10&page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Nast\\u0119pna &raquo;\",\"page\":null,\"active\":false}],\"path\":\"http:\\\/\\\/localhost:8080\\\/api\\\/products\",\"per_page\":7,\"to\":null,\"total\":0}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "GET api\/products\/{product_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/products\/:product_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/products\/:product_id",
+                            "variable": [
+                                {
+                                    "id": "product_id",
+                                    "key": "product_id",
+                                    "value": 1,
+                                    "description": "The ID of the product."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 200,
+                            "body": "{\"data\":{\"id\":1,\"name\":\"Tost z awokado na zakwasie\",\"category\":\"Pieczywo\",\"per_100g\":{\"kcal\":124,\"protein\":5.6,\"carbs\":12.8,\"fat\":6.4}}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "POST api\/products",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/products",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/products"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"category\":\"Warzywa i owoce\",\"kcal_100g\":22,\"protein_100g\":7,\"carbs_100g\":16,\"fat_100g\":17}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "PUT api\/products\/{product_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/products\/:product_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/products\/:product_id",
+                            "variable": [
+                                {
+                                    "id": "product_id",
+                                    "key": "product_id",
+                                    "value": 1,
+                                    "description": "The ID of the product."
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"category\":\"Pieczywo\",\"kcal_100g\":22,\"protein_100g\":7,\"carbs_100g\":16,\"fat_100g\":17}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "DELETE api\/products\/{product_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/products\/:product_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/products\/:product_id",
+                            "variable": [
+                                {
+                                    "id": "product_id",
+                                    "key": "product_id",
+                                    "value": 1,
+                                    "description": "The ID of the product."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Posi\u0142ki",
+            "description": "\nDziennik posi\u0142k\u00f3w zalogowanego u\u017cytkownika z wyliczaniem kalorii i makrosk\u0142adnik\u00f3w.",
+            "item": [
+                {
+                    "name": "Dzienne podsumowanie: suma kcal i makro oraz ile zosta\u0142o do celu.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/meals\/summary",
+                            "query": [
+                                {
+                                    "key": "date",
+                                    "value": "2026-11-20",
+                                    "description": "Dzie\u0144 w formacie Y-m-d (domy\u015blnie dzi\u015b).",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/meals\/summary?date=2026-11-20"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"date\":\"2026-11-20\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 200,
+                            "body": "{\"data\":{\"date\":\"2026-11-20\",\"meals_count\":3,\"totals\":{\"kcal\":1179.7,\"protein\":60.1,\"carbs\":102.7,\"fat\":54.6},\"calorie_goal\":2250,\"remaining_kcal\":1070.3,\"goal_exceeded\":false,\"goal_progress_percent\":52}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Posi\u0142ki zalogowanego u\u017cytkownika (paginacja + filtr daty i rodzaju).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/meals",
+                            "query": [
+                                {
+                                    "key": "date",
+                                    "value": "2026-11-20",
+                                    "description": "Dzie\u0144 w formacie Y-m-d.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "meal_type",
+                                    "value": "lunch",
+                                    "description": "Rodzaj posi\u0142ku.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "10",
+                                    "description": "Liczba wynik\u00f3w na stron\u0119 (1-50).",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/meals?date=2026-11-20&meal_type=lunch&per_page=10"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"date\":\"2026-11-20\",\"per_page\":1}"
+                        },
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 200,
+                            "body": "{\"data\":[{\"id\":2,\"meal_date\":\"2026-11-20\",\"meal_type\":\"lunch\",\"name\":\"Obiad\",\"items\":[{\"id\":3,\"product_id\":3,\"product_name\":\"Miska z \\u0142ososiem\",\"grams\":420,\"nutrition\":{\"kcal\":680.4,\"protein\":34,\"carbs\":52.1,\"fat\":33.2}}],\"totals\":{\"kcal\":680.4,\"protein\":34,\"carbs\":52.1,\"fat\":33.2}}],\"links\":{\"first\":\"http:\\\/\\\/localhost:8080\\\/api\\\/meals?date=2026-11-20&meal_type=lunch&per_page=10&page=1\",\"last\":\"http:\\\/\\\/localhost:8080\\\/api\\\/meals?date=2026-11-20&meal_type=lunch&per_page=10&page=1\",\"prev\":null,\"next\":null},\"meta\":{\"current_page\":1,\"from\":1,\"last_page\":1,\"links\":[{\"url\":null,\"label\":\"&laquo; Poprzednia\",\"page\":null,\"active\":false},{\"url\":\"http:\\\/\\\/localhost:8080\\\/api\\\/meals?date=2026-11-20&meal_type=lunch&per_page=10&page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":null,\"label\":\"Nast\\u0119pna &raquo;\",\"page\":null,\"active\":false}],\"path\":\"http:\\\/\\\/localhost:8080\\\/api\\\/meals\",\"per_page\":1,\"to\":1,\"total\":1}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "POST api\/meals",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/meals",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/meals"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"meal_date\":\"2026-11-20\",\"meal_type\":\"dinner\",\"name\":\"b\",\"items\":[{\"product_id\":16,\"grams\":22}]}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "GET api\/meals\/{meal_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/meals\/:meal_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/meals\/:meal_id",
+                            "variable": [
+                                {
+                                    "id": "meal_id",
+                                    "key": "meal_id",
+                                    "value": 1,
+                                    "description": "The ID of the meal."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 200,
+                            "body": "{\"data\":{\"id\":1,\"meal_date\":\"2026-11-20\",\"meal_type\":\"breakfast\",\"name\":\"\\u015aniadanie\",\"items\":[{\"id\":1,\"product_id\":1,\"product_name\":\"Tost z awokado na zakwasie\",\"grams\":250,\"nutrition\":{\"kcal\":310,\"protein\":14,\"carbs\":32,\"fat\":16}},{\"id\":2,\"product_id\":2,\"product_name\":\"Podw\\u00f3jne espresso\",\"grams\":60,\"nutrition\":{\"kcal\":4.8,\"protein\":0.1,\"carbs\":0.6,\"fat\":0.1}}],\"totals\":{\"kcal\":314.8,\"protein\":14.1,\"carbs\":32.6,\"fat\":16.1}}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "PUT api\/meals\/{meal_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/meals\/:meal_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/meals\/:meal_id",
+                            "variable": [
+                                {
+                                    "id": "meal_id",
+                                    "key": "meal_id",
+                                    "value": 1,
+                                    "description": "The ID of the meal."
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"meal_date\":\"2026-11-20\",\"meal_type\":\"breakfast\",\"name\":\"b\",\"items\":[{\"product_id\":16,\"grams\":22}]}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "DELETE api\/meals\/{meal_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/meals\/:meal_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/meals\/:meal_id",
+                            "variable": [
+                                {
+                                    "id": "meal_id",
+                                    "key": "meal_id",
+                                    "value": 1,
+                                    "description": "The ID of the meal."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Grupy",
+            "description": "\nGrupy u\u017cytkownik\u00f3w. Widz\u0105 je cz\u0142onkowie, zarz\u0105dza w\u0142a\u015bciciel.",
+            "item": [
+                {
+                    "name": "Grupy, do kt\u00f3rych nale\u017cy zalogowany u\u017cytkownik.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/groups",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/groups"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 200,
+                            "body": "{\"data\":[{\"id\":1,\"name\":\"Rodzina Kowalskich\",\"type\":\"family\",\"my_role\":\"member\",\"members_count\":3}]}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Nowa grupa - tw\u00f3rca zostaje w\u0142a\u015bcicielem.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/groups",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/groups"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"type\":\"other\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "GET api\/groups\/{group_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/groups\/:group_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/groups\/:group_id",
+                            "variable": [
+                                {
+                                    "id": "group_id",
+                                    "key": "group_id",
+                                    "value": 1,
+                                    "description": "The ID of the group."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 200,
+                            "body": "{\"data\":{\"id\":1,\"name\":\"Rodzina Kowalskich\",\"type\":\"family\",\"members\":[{\"id\":1,\"name\":\"admin\",\"email\":\"admin@mealcore.com\",\"member_role\":\"owner\"},{\"id\":2,\"name\":\"alex\",\"email\":\"alex@mealcore.com\",\"member_role\":\"member\"},{\"id\":3,\"name\":\"sarah\",\"email\":\"sarah@mealcore.com\",\"member_role\":\"member\"}]}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "DELETE api\/groups\/{group_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/groups\/:group_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/groups\/:group_id",
+                            "variable": [
+                                {
+                                    "id": "group_id",
+                                    "key": "group_id",
+                                    "value": 1,
+                                    "description": "The ID of the group."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Dodanie cz\u0142onka po adresie e-mail (tylko w\u0142a\u015bciciel).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/groups\/:group_id\/members",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/groups\/:group_id\/members",
+                            "variable": [
+                                {
+                                    "id": "group_id",
+                                    "key": "group_id",
+                                    "value": 1,
+                                    "description": "The ID of the group."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"email\":\"gbailey@example.net\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Usuni\u0119cie cz\u0142onka (tylko w\u0142a\u015bciciel).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/groups\/:group_id\/members\/:user_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/groups\/:group_id\/members\/:user_id",
+                            "variable": [
+                                {
+                                    "id": "group_id",
+                                    "key": "group_id",
+                                    "value": 1,
+                                    "description": "The ID of the group."
+                                },
+                                {
+                                    "id": "user_id",
+                                    "key": "user_id",
+                                    "value": 1,
+                                    "description": "The ID of the user."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Lista zakup\u00f3w",
+            "description": "\nWsp\u00f3lna lista zakup\u00f3w grupy - dost\u0119p tylko dla cz\u0142onk\u00f3w grupy.",
+            "item": [
+                {
+                    "name": "Lista zakup\u00f3w grupy (tylko cz\u0142onkowie).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/groups\/:group_id\/shopping-items",
+                            "query": [
+                                {
+                                    "key": "checked",
+                                    "value": "",
+                                    "description": "Filtr: 1 = kupione, 0 = do kupienia.",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "20",
+                                    "description": "Liczba wynik\u00f3w na stron\u0119 (1-50).",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/groups\/:group_id\/shopping-items?checked=&per_page=20",
+                            "variable": [
+                                {
+                                    "id": "group_id",
+                                    "key": "group_id",
+                                    "value": 1,
+                                    "description": "The ID of the group."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"checked\":true,\"per_page\":1}"
+                        },
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 200,
+                            "body": "{\"data\":[{\"id\":5,\"group_id\":1,\"product_name\":\"Pier\\u015b z kurczaka\",\"category\":\"Bia\\u0142ko\",\"quantity\":\"500 g\",\"is_checked\":true,\"bought_at\":\"2026-11-20T20:08:55+00:00\",\"added_by\":\"alex\"}],\"links\":{\"first\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=1\",\"last\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=2\",\"prev\":null,\"next\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=2\"},\"meta\":{\"current_page\":1,\"from\":1,\"last_page\":2,\"links\":[{\"url\":null,\"label\":\"&laquo; Poprzednia\",\"page\":null,\"active\":false},{\"url\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=2\",\"label\":\"2\",\"page\":2,\"active\":false},{\"url\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=2\",\"label\":\"Nast\\u0119pna &raquo;\",\"page\":2,\"active\":false}],\"path\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items\",\"per_page\":1,\"to\":1,\"total\":2}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "POST api\/groups\/{group_id}\/shopping-items",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/groups\/:group_id\/shopping-items",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/groups\/:group_id\/shopping-items",
+                            "variable": [
+                                {
+                                    "id": "group_id",
+                                    "key": "group_id",
+                                    "value": 1,
+                                    "description": "The ID of the group."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"product_name\":\"b\",\"category\":\"Inne\",\"quantity\":\"n\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Edycja lub odhaczenie produktu jako kupionego.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/shopping-items\/:shoppingItem_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/shopping-items\/:shoppingItem_id",
+                            "variable": [
+                                {
+                                    "id": "shoppingItem_id",
+                                    "key": "shoppingItem_id",
+                                    "value": 1,
+                                    "description": "The ID of the shoppingItem."
+                                }
+                            ]
+                        },
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"product_name\":\"b\",\"category\":\"Bia\u0142ko\",\"quantity\":\"n\",\"is_checked\":false}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "DELETE api\/shopping-items\/{shoppingItem_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/shopping-items\/:shoppingItem_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/shopping-items\/:shoppingItem_id",
+                            "variable": [
+                                {
+                                    "id": "shoppingItem_id",
+                                    "key": "shoppingItem_id",
+                                    "value": 1,
+                                    "description": "The ID of the shoppingItem."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Panel admina",
+            "description": "\nZarz\u0105dzanie u\u017cytkownikami - tylko dla roli admin.",
+            "item": [
+                {
+                    "name": "Lista u\u017cytkownik\u00f3w (paginacja + wyszukiwanie po nazwie \/ e-mailu).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/users",
+                            "query": [
+                                {
+                                    "key": "q",
+                                    "value": "alex",
+                                    "description": "Szukaj po nazwie lub e-mailu.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15",
+                                    "description": "Liczba wynik\u00f3w na stron\u0119 (1-50).",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/admin\/users?q=alex&per_page=15"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"q\":\"b\",\"per_page\":22}"
+                        },
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 403,
+                            "body": "{\"message\":\"Ta operacja wymaga uprawnie\\u0144 administratora.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Zmiana roli u\u017cytkownika (user \/ admin).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/users\/:user_id\/role",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/users\/:user_id\/role",
+                            "variable": [
+                                {
+                                    "id": "user_id",
+                                    "key": "user_id",
+                                    "value": 1,
+                                    "description": "The ID of the user."
+                                }
+                            ]
+                        },
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"role\":\"admin\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "DELETE api\/admin\/users\/{user_id}",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/users\/:user_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/users\/:user_id",
+                            "variable": [
+                                {
+                                    "id": "user_id",
+                                    "key": "user_id",
+                                    "value": 1,
+                                    "description": "The ID of the user."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "key",
+                "type": "string"
+            }
+        ]
+    }
+}

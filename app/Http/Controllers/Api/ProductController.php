@@ -13,6 +13,10 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 /**
+ * @group Produkty
+ *
+ * Baza produktów (wartości na 100 g). Odczyt: każdy zalogowany, zapis: tylko admin.
+ *
  * Warstwa HTTP: przyjmuje request, deleguje do serwisu, zwraca Resource (DTO).
  */
 class ProductController extends Controller

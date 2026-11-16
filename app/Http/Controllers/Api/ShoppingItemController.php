@@ -13,6 +13,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
+/**
+ * @group Lista zakupów
+ *
+ * Wspólna lista zakupów grupy - dostęp tylko dla członków grupy.
+ */
 class ShoppingItemController extends Controller
 {
     public function __construct(private readonly ShoppingListService $shopping)

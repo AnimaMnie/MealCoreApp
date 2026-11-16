@@ -13,6 +13,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
+/**
+ * @group Grupy
+ *
+ * Grupy użytkowników. Widzą je członkowie, zarządza właściciel.
+ */
 class GroupController extends Controller
 {
     public function __construct(private readonly GroupService $groups)

@@ -11,6 +11,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
+/**
+ * @group Autoryzacja
+ *
+ * Rejestracja, logowanie i wylogowanie (tokeny Sanctum).
+ */
 class AuthController extends Controller
 {
     public function __construct(private readonly AuthService $auth)

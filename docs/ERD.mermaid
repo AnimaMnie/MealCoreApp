@@ -1,0 +1,75 @@
+erDiagram
+    users ||--o{ meals : "loguje"
+    meals ||--|{ meal_items : "sklada sie z"
+    products ||--o{ meal_items : "uzyty w"
+    users ||--o{ group_members : "nalezy do"
+    groups ||--o{ group_members : "zawiera"
+    groups ||--o{ shopping_items : "lista zakupow"
+    users |o--o{ shopping_items : "dodal"
+    users ||--o{ personal_access_tokens : "tokeny Sanctum"
+
+    users {
+        bigint id PK
+        varchar name
+        varchar email UK
+        varchar password "bcrypt"
+        varchar role "user | admin"
+        int daily_calorie_goal
+        timestamp created_at
+    }
+
+    products {
+        bigint id PK
+        varchar name
+        varchar category
+        decimal kcal_100g
+        decimal protein_100g
+        decimal carbs_100g
+        decimal fat_100g
+    }
+
+    meals {
+        bigint id PK
+        bigint user_id FK
+        date meal_date
+        varchar meal_type "breakfast | lunch | dinner | ..."
+        varchar name
+    }
+
+    meal_items {
+        bigint id PK
+        bigint meal_id FK
+        bigint product_id FK
+        decimal grams
+    }
+
+    groups {
+        bigint id PK
+        varchar name UK
+        varchar type "family | roommates | office | other"
+    }
+
+    group_members {
+        bigint id PK
+        bigint group_id FK
+        bigint user_id FK
+        varchar member_role "owner | member"
+    }
+
+    shopping_items {
+        bigint id PK
+        bigint group_id FK
+        bigint added_by FK
+        varchar product_name
+        varchar category
+        varchar quantity
+        boolean is_checked
+        timestamp bought_at
+    }
+
+    personal_access_tokens {
+        bigint id PK
+        bigint tokenable_id FK
+        varchar token UK "hash SHA-256"
+        timestamp last_used_at
+    }
