@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Events\MealLogChanged;
+use App\Listeners\UpdateDailySummary;
 use App\Models\Group;
 use App\Models\Meal;
 use App\Models\Product;
@@ -116,6 +118,34 @@ class DatabaseSeeder extends Seeder
                     'grams' => $grams,
                 ]);
             }
+        }
+
+        // --- Historia ostatnich 6 dni alexa (do statystyk tygodnia) -------
+        $history = [
+            [['Owsianka', 300], ['Banan', 120]],
+            [['Grillowana pierś z kurczaka', 250], ['Ryż brązowy (ugotowany)', 300], ['Brokuł', 200]],
+            [['Jajka', 150], ['Chleb żytni', 120], ['Ser cheddar', 60]],
+            [['Tuńczyk z puszki', 150], ['Komosa ryżowa', 250], ['Masło orzechowe', 40]],
+            [['Jogurt grecki z borówkami', 300], ['Migdały', 50], ['Batat', 400]],
+            [['Miska z łososiem', 500], ['Awokado', 150], ['Mleko 3,2%', 500]],
+        ];
+
+        foreach ($history as $daysAgo => $items) {
+            $meal = Meal::create([
+                'user_id' => $alex->id,
+                'meal_date' => today()->subDays($daysAgo + 1),
+                'meal_type' => 'lunch',
+                'name' => 'Obiad',
+            ]);
+            foreach ($items as [$productName, $grams]) {
+                $meal->items()->create(['product_id' => $p[$productName]->id, 'grams' => $grams]);
+            }
+        }
+
+        // Podsumowania dni liczymy od razu (bez kolejki), żeby statystyki były gotowe po seedzie.
+        $updater = app(UpdateDailySummary::class);
+        for ($i = 0; $i <= count($history); $i++) {
+            $updater->handle(new MealLogChanged($alex->id, today()->subDays($i)->toDateString()));
         }
 
         // --- Lista zakupów rodziny --------------------------------------

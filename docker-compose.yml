@@ -8,6 +8,18 @@ services:
         depends_on:
             - db
 
+    # Worker kolejki - wykonuje zadania asynchroniczne (listener UpdateDailySummary).
+    queue:
+        build:
+            context: .
+            dockerfile: docker/php/Dockerfile
+        command: php artisan queue:work --tries=3 --sleep=1
+        restart: unless-stopped
+        volumes:
+            - .:/var/www
+        depends_on:
+            - db
+
     nginx:
         image: nginx:alpine
         ports:
@@ -17,6 +29,15 @@ services:
             - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
         depends_on:
             - app
+
+    # Frontend Vue (zbudowany i serwowany przez nginx, /api przekazywane do backendu).
+    frontend:
+        build:
+            context: ./frontend
+        ports:
+            - "8081:80"
+        depends_on:
+            - nginx
 
     db:
         image: postgres:16

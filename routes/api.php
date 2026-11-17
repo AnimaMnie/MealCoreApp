@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dziennik posiłków (każdy widzi i zmienia tylko swoje - MealPolicy).
     Route::get('meals/summary', [MealController::class, 'summary']);
+    Route::get('meals/history', [MealController::class, 'history']);
     Route::get('meals', [MealController::class, 'index']);
     Route::post('meals', [MealController::class, 'store']);
     Route::get('meals/{meal}', [MealController::class, 'show'])->can('view', 'meal');

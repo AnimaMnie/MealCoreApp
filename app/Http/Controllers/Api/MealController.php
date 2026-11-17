@@ -62,6 +62,23 @@ class MealController extends Controller
         ]);
     }
 
+    /**
+     * Historia ostatnich dni (statystyki tygodnia/miesiąca).
+     *
+     * Dane pochodzą z tabeli daily_summaries, którą asynchronicznie uzupełnia kolejka
+     * po każdej zmianie w dzienniku posiłków.
+     *
+     * @queryParam days int Liczba dni wstecz (1-31, domyślnie 7). Example: 7
+     */
+    public function history(Request $request): JsonResponse
+    {
+        $validated = $request->validate(['days' => ['nullable', 'integer', 'min:1', 'max:31']]);
+
+        return response()->json([
+            'data' => $this->meals->history($request->user(), $validated['days'] ?? 7),
+        ]);
+    }
+
     public function store(StoreMealRequest $request): MealResource
     {
         return new MealResource($this->meals->create($request->user(), $request->validated()));
