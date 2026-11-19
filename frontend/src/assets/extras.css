@@ -1,0 +1,69 @@
+/* ===========================================================
+   Dodatki do systemu designu ze starego projektu (app.css):
+   elementy, których nie było w wersji PHP (wykres tygodnia,
+   paginacja, tabela produktów, błędy formularzy, modal edycji).
+   =========================================================== */
+
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.logout-link { margin-left: auto; color: var(--ink-soft); }
+.logout-link:hover { color: var(--red); }
+
+/* Wykres ostatnich dni (dane z kolejki -> daily_summaries) */
+.week-chart { display: flex; align-items: flex-end; gap: 8px; height: 140px; padding-top: 10px; }
+.week-chart .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+.week-chart .bar {
+    width: 100%; max-width: 34px; border-radius: 8px 8px 4px 4px;
+    background: var(--orange); min-height: 4px; transition: height .3s;
+}
+.week-chart .bar.over { background: var(--red); }
+.week-chart .bar.empty { background: var(--line); }
+.week-chart .bar-val { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
+.week-chart .bar-day { font-size: 11px; color: var(--ink-soft); text-transform: capitalize; }
+.week-chart.dense { gap: 3px; }
+.week-chart.dense .bar-val { display: none; }
+.chart-legend { display: flex; gap: 14px; font-size: 12px; color: var(--ink-soft); margin-top: 10px; flex-wrap: wrap; }
+.chart-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+/* Paginacja */
+.pager { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 18px; }
+.pager button {
+    border: 1px solid var(--line); background: var(--white); border-radius: 10px;
+    padding: 8px 14px; font: inherit; font-weight: 700; cursor: pointer; color: var(--ink);
+}
+.pager button:disabled { opacity: .4; cursor: default; }
+.pager .info { font-size: 13px; color: var(--ink-soft); }
+
+/* Pasek filtrów (produkty, użytkownicy) */
+.filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.filter-bar .search-box { flex: 1; min-width: 220px; margin: 0; }
+.filter-bar select {
+    border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 12px;
+    font: inherit; background: var(--white);
+}
+
+/* Tabela produktów - korzysta ze stylu .user-table */
+.user-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.table-wrap { overflow-x: auto; }
+
+/* Formularze w modalach */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-grid .full { grid-column: 1 / -1; }
+.form-field label { display: block; font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-bottom: 5px; }
+.form-field input, .form-field select {
+    width: 100%; border: 1px solid var(--line); border-radius: var(--radius-sm);
+    padding: 10px 12px; font: inherit; background: var(--white);
+}
+.form-field input:focus, .form-field select:focus { outline: 2px solid var(--orange-soft); border-color: var(--orange); }
+.field-error { color: var(--red); font-size: 12px; margin-top: 4px; }
+.form-input.has-error { border-color: var(--red); }
+
+/* Edycja pozycji w dzienniku */
+.food-item .edit { background: none; border: none; color: var(--ink-soft); cursor: pointer; padding: 6px; font-size: 14px; }
+.food-item .edit:hover { color: var(--orange); }
+.date-pills button.disabled-day { opacity: .5; }
+
+/* Ładowanie */
+.loading { padding: 40px; text-align: center; color: var(--ink-soft); }
+
+/* Strona rejestracji - wysokość karty */
+.login-body.scrollable { overflow: auto; height: auto; min-height: 100vh; }

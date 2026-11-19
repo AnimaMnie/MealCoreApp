@@ -1,0 +1,429 @@
+/* ─── Reset & Base ─────────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.login-body {
+    font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+    background-color: #EDF8FF;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ─── Navigation ────────────────────────────────────────── */
+.login-nav {
+    background-color: #EDF8FF;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.login-nav-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 16px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.login-logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: #874E00;
+    text-decoration: none;
+    letter-spacing: -1.2px;
+    line-height: 32px;
+}
+
+.login-nav-links {
+    display: flex;
+    list-style: none;
+    gap: 24px;
+}
+
+.login-nav-links a {
+    text-decoration: none;
+    color: #435F6D;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.35px;
+    line-height: 20px;
+}
+
+/* ─── Main / Blobs ──────────────────────────────────────── */
+.login-main {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    position: relative;
+    isolation: isolate;
+}
+
+.blob {
+    position: absolute;
+    border-radius: 9999px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.blob-top-left {
+    left: -5%;
+    right: 75%;
+    top: -10%;
+    bottom: 67.19%;
+    background: rgba(255, 152, 0, 0.1);
+    filter: blur(32px);
+}
+
+.blob-bottom-right {
+    left: 80%;
+    right: -5%;
+    top: 74.32%;
+    bottom: -10%;
+    background: rgba(247, 199, 183, 0.2);
+    filter: blur(32px);
+}
+
+/* ─── Card wrapper ──────────────────────────────────────── */
+.login-card-wrapper {
+    width: 100%;
+    max-width: 448px;
+    z-index: 2;
+    position: relative;
+}
+
+/* ─── Card ──────────────────────────────────────────────── */
+.login-card {
+    background: #ffffff;
+    border: 1px solid rgba(148, 178, 193, 0.15);
+    box-shadow: 0px 8px 32px rgba(20, 50, 62, 0.06);
+    border-radius: 12px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    width: 100%;
+}
+
+/* ─── Brand Anchor ──────────────────────────────────────── */
+.brand-anchor {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    position: relative;
+    height: 120px;
+}
+
+.login-icon-pill {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 34.5px;
+    background: rgba(255, 152, 0, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-title {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 800;
+    color: #14323E;
+    letter-spacing: -0.6px;
+    line-height: 32px;
+}
+
+.login-subtitle {
+    position: absolute;
+    top: 100px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: #435F6D;
+    line-height: 20px;
+}
+
+/* ─── Form ──────────────────────────────────────────────── */
+.login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 8px;
+}
+
+.form-group {
+    width: 100%;
+    position: relative;
+    height: 69px;
+}
+
+.form-label {
+    position: absolute;
+    top: -0.5px;
+    left: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #435F6D;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    line-height: 15px;
+    white-space: nowrap;
+}
+
+.input-wrapper {
+    position: absolute;
+    top: 21px;
+    left: 0;
+    right: 0;
+    height: 48px;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 16px;
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+.form-input {
+    width: 100%;
+    height: 48px;
+    padding: 12px 16px 13px 44px;
+    border: 2px solid #C0E9FD;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Manrope', system-ui, sans-serif;
+    color: #14323E;
+    background: #ffffff;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.form-input::placeholder {
+    color: rgba(148, 178, 193, 0.6);
+}
+
+.form-input:focus {
+    border-color: #93c5fd;
+}
+
+/* ─── Remember & Forgot ─────────────────────────────────── */
+.form-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 16px;
+}
+
+.remember-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.remember-checkbox {
+    display: none;
+}
+
+.remember-checkbox-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    background: #ffffff;
+    border: 2px solid #C0E9FD;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+
+.check-icon {
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.remember-checkbox:checked ~ .remember-checkbox-wrap {
+    background: #FF9800;
+    border-color: #FF9800;
+}
+
+.remember-checkbox:checked ~ .remember-checkbox-wrap .check-icon {
+    opacity: 1;
+}
+
+.remember-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: #435F6D;
+    line-height: 16px;
+}
+
+.forgot-link {
+    font-size: 12px;
+    font-weight: 700;
+    color: #874E00;
+    text-decoration: none;
+    line-height: 16px;
+}
+
+/* ─── Error ─────────────────────────────────────────────── */
+.login-error {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1.5px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #dc2626;
+    text-align: center;
+}
+
+/* ─── Sign In Button ────────────────────────────────────── */
+.signin-btn {
+    width: 100%;
+    height: 52px;
+    padding: 14px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(98.7deg, #874E00 0%, #FF9800 100%);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    box-shadow:
+        0px 10px 15px -3px rgba(255, 152, 0, 0.2),
+        0px 4px 6px -4px rgba(255, 152, 0, 0.2);
+    transition: opacity 0.15s;
+}
+
+.signin-btn:hover {
+    opacity: 0.92;
+}
+
+.signin-btn:active {
+    opacity: 0.85;
+}
+
+.signin-text {
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 24px;
+}
+
+.signin-arrow {
+    flex-shrink: 0;
+}
+
+/* ─── Card footer ───────────────────────────────────────── */
+.card-footer {
+    width: 100%;
+    border-top: 1px solid rgba(148, 178, 193, 0.1);
+    padding-top: 24px;
+}
+
+.signup-text {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #435F6D;
+    line-height: 16px;
+    gap: 0;
+}
+
+.signup-link {
+    font-size: 12px;
+    font-weight: 800;
+    color: #874E00;
+    text-decoration: none;
+}
+
+/* ─── Page Footer ───────────────────────────────────────── */
+.login-footer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 24px 16px;
+    flex-shrink: 0;
+}
+
+.footer-copyright {
+    font-size: 10px;
+    font-weight: 600;
+    color: #435F6D;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    line-height: 15px;
+}
+
+.footer-links {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+.footer-links a {
+    font-size: 10px;
+    font-weight: 600;
+    color: #435F6D;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    line-height: 15px;
+}
+
+/* ─── Responsive ────────────────────────────────────────── */
+@media (max-width: 520px) {
+    .login-main {
+        padding: 48px 16px;
+    }
+
+    .login-card {
+        padding: 32px 24px;
+    }
+
+    .login-title {
+        font-size: 20px;
+    }
+}
