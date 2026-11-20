@@ -17,7 +17,8 @@ jobs:
         env:
           POSTGRES_DB: mealcore_test
           POSTGRES_USER: mealcore
-          POSTGRES_PASSWORD: ci-password
+          # Tymczasowa baza tylko na czas testów w CI - bez hasła, żeby nie trzymać sekretów w repo.
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         options: >-
@@ -30,7 +31,6 @@ jobs:
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
       DB_USERNAME: mealcore
-      DB_PASSWORD: ci-password
 
     steps:
       - uses: actions/checkout@v4
