@@ -7,6 +7,20 @@ erDiagram
     groups ||--o{ shopping_items : "lista zakupow"
     users |o--o{ shopping_items : "dodal"
     users ||--o{ personal_access_tokens : "tokeny Sanctum"
+    users ||--o{ daily_summaries : "statystyki dni (kolejka)"
+
+    daily_summaries {
+        bigint id PK
+        bigint user_id FK
+        date date UK "unikalne z user_id"
+        int meals_count
+        decimal kcal
+        decimal protein
+        decimal carbs
+        decimal fat
+        int calorie_goal
+        boolean goal_exceeded
+    }
 
     users {
         bigint id PK

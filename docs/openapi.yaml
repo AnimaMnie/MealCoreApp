@@ -125,7 +125,7 @@ paths:
                     email: alex@mealcore.com
                     role: user
                     daily_calorie_goal: 2250
-                    created_at: '2026-11-20T20:08:54+00:00'
+                    created_at: '2026-11-20T20:38:10+00:00'
                 properties:
                   data:
                     type: object
@@ -147,7 +147,7 @@ paths:
                         example: 2250
                       created_at:
                         type: string
-                        example: '2026-11-20T20:08:54+00:00'
+                        example: '2026-11-20T20:38:10+00:00'
       tags:
         - Autoryzacja
   /api/products:
@@ -352,7 +352,7 @@ paths:
                 category:
                   type: string
                   description: ''
-                  example: 'Warzywa i owoce'
+                  example: Nabiał
                   enum:
                     - 'Warzywa i owoce'
                     - Nabiał
@@ -453,7 +453,7 @@ paths:
                 category:
                   type: string
                   description: ''
-                  example: Pieczywo
+                  example: Nabiał
                   enum:
                     - 'Warzywa i owoce'
                     - Nabiał
@@ -579,6 +579,109 @@ paths:
                   type: string
                   description: 'Must be a valid date in the format <code>Y-m-d</code>.'
                   example: '2026-11-20'
+                  nullable: true
+  /api/meals/history:
+    get:
+      summary: 'Historia ostatnich dni (statystyki tygodnia/miesiąca).'
+      operationId: historiaOstatnichDnistatystykiTygodniamiesica
+      description: "Dane pochodzą z tabeli daily_summaries, którą asynchronicznie uzupełnia kolejka\npo każdej zmianie w dzienniku posiłków."
+      parameters:
+        -
+          in: query
+          name: days
+          description: 'Liczba dni wstecz (1-31, domyślnie 7).'
+          example: 7
+          required: false
+          schema:
+            type: integer
+            description: 'Liczba dni wstecz (1-31, domyślnie 7).'
+            example: 7
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    days:
+                      -
+                        date: '2026-11-20'
+                        meals_count: 3
+                        kcal: 1179.7
+                        protein: 60.1
+                        carbs: 102.7
+                        fat: 54.6
+                        goal_exceeded: false
+                    calorie_goal: 2250
+                    average_kcal: 1179.7
+                    days_logged: 1
+                    days_goal_exceeded: 0
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      days:
+                        type: array
+                        example:
+                          -
+                            date: '2026-11-20'
+                            meals_count: 3
+                            kcal: 1179.7
+                            protein: 60.1
+                            carbs: 102.7
+                            fat: 54.6
+                            goal_exceeded: false
+                        items:
+                          type: object
+                          properties:
+                            date:
+                              type: string
+                              example: '2026-11-20'
+                            meals_count:
+                              type: integer
+                              example: 3
+                            kcal:
+                              type: number
+                              example: 1179.7
+                            protein:
+                              type: number
+                              example: 60.1
+                            carbs:
+                              type: number
+                              example: 102.7
+                            fat:
+                              type: number
+                              example: 54.6
+                            goal_exceeded:
+                              type: boolean
+                              example: false
+                      calorie_goal:
+                        type: integer
+                        example: 2250
+                      average_kcal:
+                        type: number
+                        example: 1179.7
+                      days_logged:
+                        type: integer
+                        example: 1
+                      days_goal_exceeded:
+                        type: integer
+                        example: 0
+      tags:
+        - Posiłki
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                days:
+                  type: integer
+                  description: 'Pole value musi wynosić co najmniej 1. Pole value nie może być większe niż 31.'
+                  example: 1
                   nullable: true
   /api/meals:
     get:
@@ -895,7 +998,7 @@ paths:
                 meal_type:
                   type: string
                   description: ''
-                  example: dinner
+                  example: supper
                   enum:
                     - breakfast
                     - second_breakfast
@@ -1202,7 +1305,7 @@ paths:
                 type:
                   type: string
                   description: ''
-                  example: other
+                  example: family
                   enum:
                     - family
                     - roommates
@@ -1408,7 +1511,7 @@ paths:
                       category: Białko
                       quantity: '500 g'
                       is_checked: true
-                      bought_at: '2026-11-20T20:08:55+00:00'
+                      bought_at: '2026-11-20T20:38:10+00:00'
                       added_by: alex
                   links:
                     first: 'http://localhost:8080/api/groups/1/shopping-items?checked=0&per_page=20&page=1'
@@ -1455,7 +1558,7 @@ paths:
                         category: Białko
                         quantity: '500 g'
                         is_checked: true
-                        bought_at: '2026-11-20T20:08:55+00:00'
+                        bought_at: '2026-11-20T20:38:10+00:00'
                         added_by: alex
                     items:
                       type: object
@@ -1480,7 +1583,7 @@ paths:
                           example: true
                         bought_at:
                           type: string
-                          example: '2026-11-20T20:08:55+00:00'
+                          example: '2026-11-20T20:38:10+00:00'
                         added_by:
                           type: string
                           example: alex
@@ -1605,7 +1708,7 @@ paths:
                 category:
                   type: string
                   description: ''
-                  example: Inne
+                  example: Nabiał
                   enum:
                     - 'Warzywa i owoce'
                     - Nabiał
@@ -1650,7 +1753,7 @@ paths:
                 category:
                   type: string
                   description: ''
-                  example: Białko
+                  example: 'Warzywa i owoce'
                   enum:
                     - 'Warzywa i owoce'
                     - Nabiał

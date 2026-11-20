@@ -10,7 +10,7 @@
     ],
     "info": {
         "name": "MealCore API",
-        "_postman_id": "4aa43f19-4dad-4cac-a64b-576d71b5c616",
+        "_postman_id": "f314ad72-c622-44d7-b0fe-7afba5563afd",
         "description": "REST API aplikacji MealCore: dziennik posi\u0142k\u00f3w z liczeniem kalorii, baza produkt\u00f3w, grupy ze wsp\u00f3ln\u0105 list\u0105 zakup\u00f3w i panel administratora.",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
     },
@@ -146,7 +146,7 @@
                                 }
                             ],
                             "code": 200,
-                            "body": "{\"data\":{\"id\":2,\"name\":\"alex\",\"email\":\"alex@mealcore.com\",\"role\":\"user\",\"daily_calorie_goal\":2250,\"created_at\":\"2026-11-20T20:08:54+00:00\"}}",
+                            "body": "{\"data\":{\"id\":2,\"name\":\"alex\",\"email\":\"alex@mealcore.com\",\"role\":\"user\",\"daily_calorie_goal\":2250,\"created_at\":\"2026-11-20T20:38:10+00:00\"}}",
                             "name": ""
                         }
                     ]
@@ -299,7 +299,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"category\":\"Warzywa i owoce\",\"kcal_100g\":22,\"protein_100g\":7,\"carbs_100g\":16,\"fat_100g\":17}"
+                            "raw": "{\"name\":\"b\",\"category\":\"Nabia\u0142\",\"kcal_100g\":22,\"protein_100g\":7,\"carbs_100g\":16,\"fat_100g\":17}"
                         },
                         "description": ""
                     },
@@ -335,7 +335,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"category\":\"Pieczywo\",\"kcal_100g\":22,\"protein_100g\":7,\"carbs_100g\":16,\"fat_100g\":17}"
+                            "raw": "{\"name\":\"b\",\"category\":\"Nabia\u0142\",\"kcal_100g\":22,\"protein_100g\":7,\"carbs_100g\":16,\"fat_100g\":17}"
                         },
                         "description": ""
                     },
@@ -436,6 +436,61 @@
                     ]
                 },
                 {
+                    "name": "Historia ostatnich dni (statystyki tygodnia\/miesi\u0105ca).",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/meals\/history",
+                            "query": [
+                                {
+                                    "key": "days",
+                                    "value": "7",
+                                    "description": "Liczba dni wstecz (1-31, domy\u015blnie 7).",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/meals\/history?days=7"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"days\":1}"
+                        },
+                        "description": "Dane pochodz\u0105 z tabeli daily_summaries, kt\u00f3r\u0105 asynchronicznie uzupe\u0142nia kolejka\npo ka\u017cdej zmianie w dzienniku posi\u0142k\u00f3w."
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 200,
+                            "body": "{\"data\":{\"days\":[{\"date\":\"2026-11-20\",\"meals_count\":3,\"kcal\":1179.7,\"protein\":60.1,\"carbs\":102.7,\"fat\":54.6,\"goal_exceeded\":false}],\"calorie_goal\":2250,\"average_kcal\":1179.7,\"days_logged\":1,\"days_goal_exceeded\":0}}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
                     "name": "Posi\u0142ki zalogowanego u\u017cytkownika (paginacja + filtr daty i rodzaju).",
                     "request": {
                         "url": {
@@ -524,7 +579,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"meal_date\":\"2026-11-20\",\"meal_type\":\"dinner\",\"name\":\"b\",\"items\":[{\"product_id\":16,\"grams\":22}]}"
+                            "raw": "{\"meal_date\":\"2026-11-20\",\"meal_type\":\"supper\",\"name\":\"b\",\"items\":[{\"product_id\":16,\"grams\":22}]}"
                         },
                         "description": ""
                     },
@@ -725,7 +780,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"name\":\"b\",\"type\":\"other\"}"
+                            "raw": "{\"name\":\"b\",\"type\":\"family\"}"
                         },
                         "description": ""
                     },
@@ -962,7 +1017,7 @@
                                 }
                             ],
                             "code": 200,
-                            "body": "{\"data\":[{\"id\":5,\"group_id\":1,\"product_name\":\"Pier\\u015b z kurczaka\",\"category\":\"Bia\\u0142ko\",\"quantity\":\"500 g\",\"is_checked\":true,\"bought_at\":\"2026-11-20T20:08:55+00:00\",\"added_by\":\"alex\"}],\"links\":{\"first\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=1\",\"last\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=2\",\"prev\":null,\"next\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=2\"},\"meta\":{\"current_page\":1,\"from\":1,\"last_page\":2,\"links\":[{\"url\":null,\"label\":\"&laquo; Poprzednia\",\"page\":null,\"active\":false},{\"url\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=2\",\"label\":\"2\",\"page\":2,\"active\":false},{\"url\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=2\",\"label\":\"Nast\\u0119pna &raquo;\",\"page\":2,\"active\":false}],\"path\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items\",\"per_page\":1,\"to\":1,\"total\":2}}",
+                            "body": "{\"data\":[{\"id\":5,\"group_id\":1,\"product_name\":\"Pier\\u015b z kurczaka\",\"category\":\"Bia\\u0142ko\",\"quantity\":\"500 g\",\"is_checked\":true,\"bought_at\":\"2026-11-20T20:38:10+00:00\",\"added_by\":\"alex\"}],\"links\":{\"first\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=1\",\"last\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=2\",\"prev\":null,\"next\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=2\"},\"meta\":{\"current_page\":1,\"from\":1,\"last_page\":2,\"links\":[{\"url\":null,\"label\":\"&laquo; Poprzednia\",\"page\":null,\"active\":false},{\"url\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=1\",\"label\":\"1\",\"page\":1,\"active\":true},{\"url\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=2\",\"label\":\"2\",\"page\":2,\"active\":false},{\"url\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items?checked=0&per_page=20&page=2\",\"label\":\"Nast\\u0119pna &raquo;\",\"page\":2,\"active\":false}],\"path\":\"http:\\\/\\\/localhost:8080\\\/api\\\/groups\\\/1\\\/shopping-items\",\"per_page\":1,\"to\":1,\"total\":2}}",
                             "name": ""
                         }
                     ]
@@ -997,7 +1052,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_name\":\"b\",\"category\":\"Inne\",\"quantity\":\"n\"}"
+                            "raw": "{\"product_name\":\"b\",\"category\":\"Nabia\u0142\",\"quantity\":\"n\"}"
                         },
                         "description": ""
                     },
@@ -1033,7 +1088,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"product_name\":\"b\",\"category\":\"Bia\u0142ko\",\"quantity\":\"n\",\"is_checked\":false}"
+                            "raw": "{\"product_name\":\"b\",\"category\":\"Warzywa i owoce\",\"quantity\":\"n\",\"is_checked\":false}"
                         },
                         "description": ""
                     },

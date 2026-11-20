@@ -115,6 +115,9 @@
                                                     <li class="tocify-item level-2" data-unique="posilki-GETapi-meals-summary">
                                 <a href="#posilki-GETapi-meals-summary">Dzienne podsumowanie: suma kcal i makro oraz ile zostało do celu.</a>
                             </li>
+                                                                                <li class="tocify-item level-2" data-unique="posilki-GETapi-meals-history">
+                                <a href="#posilki-GETapi-meals-history">Historia ostatnich dni (statystyki tygodnia/miesiąca).</a>
+                            </li>
                                                                                 <li class="tocify-item level-2" data-unique="posilki-GETapi-meals">
                                 <a href="#posilki-GETapi-meals">Posiłki zalogowanego użytkownika (paginacja + filtr daty i rodzaju).</a>
                             </li>
@@ -717,7 +720,7 @@ access-control-allow-origin: *
         &quot;email&quot;: &quot;alex@mealcore.com&quot;,
         &quot;role&quot;: &quot;user&quot;,
         &quot;daily_calorie_goal&quot;: 2250,
-        &quot;created_at&quot;: &quot;2026-11-20T20:08:54+00:00&quot;
+        &quot;created_at&quot;: &quot;2026-11-20T20:38:10+00:00&quot;
     }
 }</code>
  </pre>
@@ -1268,7 +1271,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Accept: application/json" \
     --data "{
     \"name\": \"b\",
-    \"category\": \"Warzywa i owoce\",
+    \"category\": \"Nabiał\",
     \"kcal_100g\": 22,
     \"protein_100g\": 7,
     \"carbs_100g\": 16,
@@ -1290,7 +1293,7 @@ const headers = {
 
 let body = {
     "name": "b",
-    "category": "Warzywa i owoce",
+    "category": "Nabiał",
     "kcal_100g": 22,
     "protein_100g": 7,
     "carbs_100g": 16,
@@ -1410,10 +1413,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="category"                data-endpoint="POSTapi-products"
-               value="Warzywa i owoce"
+               value="Nabiał"
                data-component="body">
     <br>
-<p>Example: <code>Warzywa i owoce</code></p>
+<p>Example: <code>Nabiał</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Warzywa i owoce</code></li> <li><code>Nabiał</code></li> <li><code>Pieczywo</code></li> <li><code>Białko</code></li> <li><code>Inne</code></li></ul>
         </div>
@@ -1487,7 +1490,7 @@ Must be one of:
     --header "Accept: application/json" \
     --data "{
     \"name\": \"b\",
-    \"category\": \"Pieczywo\",
+    \"category\": \"Nabiał\",
     \"kcal_100g\": 22,
     \"protein_100g\": 7,
     \"carbs_100g\": 16,
@@ -1509,7 +1512,7 @@ const headers = {
 
 let body = {
     "name": "b",
-    "category": "Pieczywo",
+    "category": "Nabiał",
     "kcal_100g": 22,
     "protein_100g": 7,
     "carbs_100g": 16,
@@ -1646,10 +1649,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="category"                data-endpoint="PUTapi-products--product_id-"
-               value="Pieczywo"
+               value="Nabiał"
                data-component="body">
     <br>
-<p>Example: <code>Pieczywo</code></p>
+<p>Example: <code>Nabiał</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Warzywa i owoce</code></li> <li><code>Nabiał</code></li> <li><code>Pieczywo</code></li> <li><code>Białko</code></li> <li><code>Inne</code></li></ul>
         </div>
@@ -2041,6 +2044,205 @@ You can check the Dev Tools console for debugging information.</code></pre>
         </div>
         </form>
 
+                    <h2 id="posilki-GETapi-meals-history">Historia ostatnich dni (statystyki tygodnia/miesiąca).</h2>
+
+<p>
+<small class="badge badge-darkred">requires authentication</small>
+</p>
+
+<p>Dane pochodzą z tabeli daily_summaries, którą asynchronicznie uzupełnia kolejka
+po każdej zmianie w dzienniku posiłków.</p>
+
+<span id="example-requests-GETapi-meals-history">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost:8080/api/meals/history?days=7" \
+    --header "Authorization: Bearer {TOKEN}" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json" \
+    --data "{
+    \"days\": 1
+}"
+</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8080/api/meals/history"
+);
+
+const params = {
+    "days": "7",
+};
+Object.keys(params)
+    .forEach(key =&gt; url.searchParams.append(key, params[key]));
+
+const headers = {
+    "Authorization": "Bearer {TOKEN}",
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+let body = {
+    "days": 1
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+    body: JSON.stringify(body),
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-meals-history">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <details class="annotation">
+            <summary style="cursor: pointer;">
+                <small onclick="textContent = parentElement.parentElement.open ? 'Show headers' : 'Hide headers'">Show headers</small>
+            </summary>
+            <pre><code class="language-http">cache-control: no-cache, private
+content-type: application/json
+access-control-allow-origin: *
+ </code></pre></details>         <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;data&quot;: {
+        &quot;days&quot;: [
+            {
+                &quot;date&quot;: &quot;2026-11-20&quot;,
+                &quot;meals_count&quot;: 3,
+                &quot;kcal&quot;: 1179.7,
+                &quot;protein&quot;: 60.1,
+                &quot;carbs&quot;: 102.7,
+                &quot;fat&quot;: 54.6,
+                &quot;goal_exceeded&quot;: false
+            }
+        ],
+        &quot;calorie_goal&quot;: 2250,
+        &quot;average_kcal&quot;: 1179.7,
+        &quot;days_logged&quot;: 1,
+        &quot;days_goal_exceeded&quot;: 0
+    }
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-meals-history" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-meals-history"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-meals-history"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-meals-history" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-meals-history">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-meals-history" data-method="GET"
+      data-path="api/meals/history"
+      data-authed="1"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-meals-history', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-meals-history"
+                    onclick="tryItOut('GETapi-meals-history');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-meals-history"
+                    onclick="cancelTryOut('GETapi-meals-history');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-meals-history"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/meals/history</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Authorization</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Authorization" class="auth-value"               data-endpoint="GETapi-meals-history"
+               value="Bearer {TOKEN}"
+               data-component="header">
+    <br>
+<p>Example: <code>Bearer {TOKEN}</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-meals-history"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-meals-history"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                            <h4 class="fancy-heading-panel"><b>Query Parameters</b></h4>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>days</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="days"                data-endpoint="GETapi-meals-history"
+               value="7"
+               data-component="query">
+    <br>
+<p>Liczba dni wstecz (1-31, domyślnie 7). Example: <code>7</code></p>
+            </div>
+                        <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
+        <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>days</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="days"                data-endpoint="GETapi-meals-history"
+               value="1"
+               data-component="body">
+    <br>
+<p>Pole value musi wynosić co najmniej 1. Pole value nie może być większe niż 31. Example: <code>1</code></p>
+        </div>
+        </form>
+
                     <h2 id="posilki-GETapi-meals">Posiłki zalogowanego użytkownika (paginacja + filtr daty i rodzaju).</h2>
 
 <p>
@@ -2357,7 +2559,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Accept: application/json" \
     --data "{
     \"meal_date\": \"2026-11-20\",
-    \"meal_type\": \"dinner\",
+    \"meal_type\": \"supper\",
     \"name\": \"b\",
     \"items\": [
         {
@@ -2382,7 +2584,7 @@ const headers = {
 
 let body = {
     "meal_date": "2026-11-20",
-    "meal_type": "dinner",
+    "meal_type": "supper",
     "name": "b",
     "items": [
         {
@@ -2505,10 +2707,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="meal_type"                data-endpoint="POSTapi-meals"
-               value="dinner"
+               value="supper"
                data-component="body">
     <br>
-<p>Example: <code>dinner</code></p>
+<p>Example: <code>supper</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>breakfast</code></li> <li><code>second_breakfast</code></li> <li><code>lunch</code></li> <li><code>dinner</code></li> <li><code>snack</code></li> <li><code>supper</code></li></ul>
         </div>
@@ -3309,7 +3511,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Accept: application/json" \
     --data "{
     \"name\": \"b\",
-    \"type\": \"other\"
+    \"type\": \"family\"
 }"
 </code></pre></div>
 
@@ -3327,7 +3529,7 @@ const headers = {
 
 let body = {
     "name": "b",
-    "type": "other"
+    "type": "family"
 };
 
 fetch(url, {
@@ -3443,10 +3645,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="type"                data-endpoint="POSTapi-groups"
-               value="other"
+               value="family"
                data-component="body">
     <br>
-<p>Example: <code>other</code></p>
+<p>Example: <code>family</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>family</code></li> <li><code>roommates</code></li> <li><code>office</code></li> <li><code>other</code></li></ul>
         </div>
@@ -4163,7 +4365,7 @@ access-control-allow-origin: *
             &quot;category&quot;: &quot;Białko&quot;,
             &quot;quantity&quot;: &quot;500 g&quot;,
             &quot;is_checked&quot;: true,
-            &quot;bought_at&quot;: &quot;2026-11-20T20:08:55+00:00&quot;,
+            &quot;bought_at&quot;: &quot;2026-11-20T20:38:10+00:00&quot;,
             &quot;added_by&quot;: &quot;alex&quot;
         }
     ],
@@ -4399,7 +4601,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Accept: application/json" \
     --data "{
     \"product_name\": \"b\",
-    \"category\": \"Inne\",
+    \"category\": \"Nabiał\",
     \"quantity\": \"n\"
 }"
 </code></pre></div>
@@ -4418,7 +4620,7 @@ const headers = {
 
 let body = {
     "product_name": "b",
-    "category": "Inne",
+    "category": "Nabiał",
     "quantity": "n"
 };
 
@@ -4548,10 +4750,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="category"                data-endpoint="POSTapi-groups--group_id--shopping-items"
-               value="Inne"
+               value="Nabiał"
                data-component="body">
     <br>
-<p>Example: <code>Inne</code></p>
+<p>Example: <code>Nabiał</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Warzywa i owoce</code></li> <li><code>Nabiał</code></li> <li><code>Pieczywo</code></li> <li><code>Białko</code></li> <li><code>Inne</code></li></ul>
         </div>
@@ -4589,7 +4791,7 @@ Must be one of:
     --header "Accept: application/json" \
     --data "{
     \"product_name\": \"b\",
-    \"category\": \"Białko\",
+    \"category\": \"Warzywa i owoce\",
     \"quantity\": \"n\",
     \"is_checked\": false
 }"
@@ -4609,7 +4811,7 @@ const headers = {
 
 let body = {
     "product_name": "b",
-    "category": "Białko",
+    "category": "Warzywa i owoce",
     "quantity": "n",
     "is_checked": false
 };
@@ -4740,10 +4942,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="category"                data-endpoint="PATCHapi-shopping-items--shoppingItem_id-"
-               value="Białko"
+               value="Warzywa i owoce"
                data-component="body">
     <br>
-<p>Example: <code>Białko</code></p>
+<p>Example: <code>Warzywa i owoce</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Warzywa i owoce</code></li> <li><code>Nabiał</code></li> <li><code>Pieczywo</code></li> <li><code>Białko</code></li> <li><code>Inne</code></li></ul>
         </div>

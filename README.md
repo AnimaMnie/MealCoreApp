@@ -1,6 +1,6 @@
 # MealCore 🍽️
 
-**MealCore** to aplikacja do śledzenia kalorii i posiłków. Backend to REST API w **Laravelu** z bazą **PostgreSQL**, uruchamiane w Docker Compose. Projekt zaliczeniowy z przedmiotu *Zaawansowane Technologie Programowania Aplikacji Internetowych*.
+**MealCore** to aplikacja do śledzenia kalorii i posiłków: REST API w **Laravelu** z bazą **PostgreSQL** i frontend w **Vue 3**, uruchamiane w Docker Compose. Projekt zaliczeniowy z przedmiotu *Zaawansowane Technologie Programowania Aplikacji Internetowych*.
 
 Użytkownik zapisuje posiłki z gramaturą produktów, a API liczy kalorie i makroskładniki oraz pokazuje, ile zostało do dziennego celu. Użytkownicy tworzą grupy (rodzina, współlokatorzy, biuro) ze wspólną listą zakupów, a administrator zarządza bazą produktów i kontami.
 
@@ -10,13 +10,15 @@ Użytkownik zapisuje posiłki z gramaturą produktów, a API liczy kalorie i mak
 
 | Warstwa             | Technologia                                           |
 | ------------------- | ----------------------------------------------------- |
+| Frontend            | Vue 3 + Vue Router, Vite, Font Awesome (wygląd z projektu w Figmie) |
 | Backend / REST API  | PHP 8.4, Laravel 13                                   |
 | Baza danych         | PostgreSQL 16 (osobny kontener)                       |
 | Uwierzytelnianie    | Laravel Sanctum (tokeny Bearer)                       |
+| Asynchroniczność    | Event + listener w kolejce Laravela (driver `database`, osobny worker) |
 | Dokumentacja API    | Scribe (OpenAPI 3 + strona `/docs`)                   |
-| Testy               | PHPUnit (testy jednostkowe + integracyjne REST API)   |
+| Testy / CI          | PHPUnit (testy jednostkowe + integracyjne), GitHub Actions |
 | Serwer WWW          | nginx + PHP-FPM                                       |
-| Konteneryzacja      | Docker Compose (`app` · `nginx` · `db`)               |
+| Konteneryzacja      | Docker Compose (`frontend` · `nginx` · `app` · `queue` · `db`) |
 
 ---
 
@@ -47,6 +49,7 @@ Na Windows w kroku 1 użyj `copy .env.example .env`.
 
 | Usługa              | Adres                                    |
 | ------------------- | ---------------------------------------- |
+| **Aplikacja (frontend)** | **http://localhost:8081**           |
 | REST API            | http://localhost:8080/api                |
 | Dokumentacja API    | http://localhost:8080/docs               |
 | PostgreSQL          | localhost:5433 (host) / `db:5432` (sieć Dockera) |
@@ -64,11 +67,36 @@ Na Windows w kroku 1 użyj `copy .env.example .env`.
 docker compose exec app php artisan test
 ```
 
-Testy działają na osobnej bazie PostgreSQL `mealcore_test`, którą kontener `db` tworzy przy pierwszym starcie (`docker/postgres/create-test-db.sql`), więc nie kasują danych demo. Jest 10 testów jednostkowych (`tests/Unit`) i 12 integracyjnych REST API (`tests/Feature`).
+Testy działają na osobnej bazie PostgreSQL `mealcore_test`, którą kontener `db` tworzy przy pierwszym starcie (`docker/postgres/create-test-db.sql`), więc nie kasują danych demo. Jest 10 testów jednostkowych (`tests/Unit`) i 14 integracyjnych REST API (`tests/Feature`).
+
+**CI (GitHub Actions)**: `.github/workflows/tests.yml` przy każdym pushu na `main` i przy pull requeście uruchamia testy backendu na PostgreSQL oraz sprawdza, czy frontend się buduje.
+
+### Kontenery
+
+| Kontener   | Rola |
+| ---------- | ---- |
+| `frontend` | zbudowana aplikacja Vue serwowana przez nginx, `/api` przekazuje do backendu |
+| `nginx`    | serwer WWW backendu (port 8080) |
+| `app`      | PHP-FPM z Laravelem (REST API) |
+| `queue`    | worker kolejki (`php artisan queue:work`), wykonuje zadania asynchroniczne |
+| `db`       | PostgreSQL 16 |
+
+Frontend można też uruchomić w trybie deweloperskim (z przeładowaniem na żywo): `cd frontend && npm install && npm run dev`, a potem otworzyć http://localhost:5173.
 
 ---
 
 ## Funkcje
+
+**Frontend (Vue)**: wygląd przeniesiony z projektu w Figmie (pomarańczowo-kremowa paleta, font Manrope), całość po polsku.
+
+- **Logowanie i rejestracja**: token z API trzymany w przeglądarce. Trasy aplikacji są chronione, panel admina widzi tylko admin.
+- **Pulpit**: kalorie i makroskładniki w ujęciu dnia, tygodnia lub miesiąca, pierścienie postępu, wykres ostatnich dni i seria dni.
+- **Dziennik posiłków**: nawigacja po dniach, modal z wyszukiwarką produktów, gramaturą i sumą makro na żywo, edycja i usuwanie pozycji.
+- **Lista zakupów** aktywnej grupy, **grupy** z członkami i **baza produktów** z wyszukiwarką i paginacją. Admin dodaje, edytuje i usuwa produkty.
+- **Panel admina**: lista użytkowników, zmiana ról, usuwanie kont.
+- **Błędy API** (walidacja 422, reguły biznesowe 409, brak uprawnień 403) wyświetlane są jako komunikaty pod polami formularzy lub powiadomienia.
+
+**Mechanizm asynchroniczny**: każda zmiana w dzienniku (dodanie, edycja, usunięcie posiłku) wysyła event `MealLogChanged`. Listener `UpdateDailySummary` implementuje `ShouldQueue`, więc trafia do kolejki i wykonuje go kontener `queue`, a request użytkownika nie czeka na przeliczenie. Listener zapisuje podsumowanie dnia w tabeli `daily_summaries`. Z niej korzysta endpoint `/api/meals/history`, czyli statystyki tygodnia i miesiąca oraz wykres na pulpicie.
 
 **Autoryzacja**: rejestracja i logowanie zwracają token Bearer (Sanctum), wylogowanie unieważnia token. Nowe konto zawsze dostaje rolę `user`.
 
@@ -112,6 +140,14 @@ Testy działają na osobnej bazie PostgreSQL `mealcore_test`, którą kontener `
 ## Architektura
 
 ```
+frontend/                     → aplikacja Vue 3
+ ├─ src/views/                → strony: logowanie, pulpit, dziennik, zakupy, grupy, produkty, admin
+ ├─ src/components/           → layout (sidebar, topbar), modal posiłku, paginacja, pierścień
+ ├─ src/api.js                → klient REST: token Bearer + obsługa błędów API
+ ├─ src/auth.js, router.js    → stan logowania i ochrona tras
+ └─ Dockerfile, nginx.conf    → build Vite + nginx (proxy /api -> backend)
+app/Events, app/Listeners     → MealLogChanged + UpdateDailySummary (kolejka)
+.github/workflows/tests.yml   → CI: testy backendu + build frontendu
 routes/api.php                → trasy REST + middleware (auth, role, polityki)
 app/
  ├─ Http/
@@ -136,7 +172,7 @@ docs/                         → ERD, specyfikacja OpenAPI, kolekcja Postmana
 docker/, docker-compose.yml   → kontenery app (PHP-FPM), nginx, db (PostgreSQL)
 ```
 
-**Przepływ requestu**: `nginx → public/index.php → routes/api.php → middleware (auth:sanctum, can / admin) → Form Request (walidacja) → Controller → Service (reguły biznesowe) → Model Eloquent → PostgreSQL → Resource (DTO) → JSON`.
+**Przepływ requestu**: `Vue (api.js) → nginx frontendu (/api) → nginx → public/index.php → routes/api.php → middleware (auth:sanctum, can / admin) → Form Request (walidacja) → Controller → Service (reguły biznesowe) → Model Eloquent → PostgreSQL → Resource (DTO) → JSON`.
 
 Konfiguracja jest w `.env`. Hasła i klucze nie trafiają do repozytorium (`.env` jest w `.gitignore`), a `.env.example` zawiera tylko nazwy zmiennych.
 
@@ -156,6 +192,7 @@ erDiagram
     groups ||--o{ shopping_items : "lista zakupow"
     users |o--o{ shopping_items : "dodal"
     users ||--o{ personal_access_tokens : "tokeny Sanctum"
+    users ||--o{ daily_summaries : "statystyki dni"
 
     users {
         bigint id PK
@@ -164,6 +201,13 @@ erDiagram
         varchar password "bcrypt"
         varchar role "user | admin"
         int daily_calorie_goal
+    }
+    daily_summaries {
+        bigint id PK
+        bigint user_id FK
+        date date
+        decimal kcal
+        boolean goal_exceeded
     }
     products {
         bigint id PK
@@ -236,6 +280,7 @@ Wszystkie endpointy poza rejestracją i logowaniem wymagają nagłówka `Authori
 | DELETE | `/api/products/{id}` | usunięcie produktu | admin |
 | GET    | `/api/meals?date=&meal_type=&per_page=` | moje posiłki z wyliczonymi kcal i makro | zalogowany |
 | GET    | `/api/meals/summary?date=` | podsumowanie dnia względem celu | zalogowany |
+| GET    | `/api/meals/history?days=` | statystyki ostatnich dni (z kolejki) | zalogowany |
 | POST   | `/api/meals` | dodanie posiłku z pozycjami | zalogowany |
 | GET    | `/api/meals/{id}` | szczegóły posiłku | właściciel |
 | PUT/PATCH | `/api/meals/{id}` | edycja posiłku | właściciel |
